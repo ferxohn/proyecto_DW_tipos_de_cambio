@@ -252,7 +252,7 @@ namespace TipoCambio.Classes
                 {
                     // En este caso aun no utilizo un metodo POST
                     Console.WriteLine("Error No existe metodo POST para tabla HTML.");
-                    return ejecucion = 0;
+                    return ejecucion = 1;
                 }
 
                 Console.WriteLine("Se ejecutó la petición web HTML correctamente.");

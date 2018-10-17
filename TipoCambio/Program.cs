@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TipoCambio.DataAccess;
 using TipoCambio.BusinessRules;
 using TipoCambio.Classes;
+using HtmlAgilityPack;
 
 namespace TipoCambio
 {

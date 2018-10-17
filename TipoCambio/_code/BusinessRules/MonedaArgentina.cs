@@ -87,7 +87,7 @@ namespace TipoCambio.BusinessRules
                 "2"
             };
 
-            // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo, verificando su resultado.
+            // Se ejecuta el metodo WebRequestHTML que hace todo el trabajo, verificando su resultado.
             if (WebRequestHTML(url_html, parameters_html, values) != 0)
             {
                 Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
