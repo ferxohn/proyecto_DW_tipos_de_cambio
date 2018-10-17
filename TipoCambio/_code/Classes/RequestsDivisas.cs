@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Net;
 using System.IO;
 using Newtonsoft.Json;
+using HtmlAgilityPack;
+
 
 namespace TipoCambio.Classes
 {
@@ -17,6 +19,9 @@ namespace TipoCambio.Classes
         // Atributos de la clase.
         protected string respuestaRequest = null;
         protected dynamic objetoRequest = null;
+        // Atributos para html.
+        protected dynamic respuestaRequestHTML = null;
+        protected List<string> objetoRequestHTML = new List<string>();
         protected DateTime objetoFecha;
 
         /* Metodo que permite realizar el Web Request. 
@@ -188,6 +193,121 @@ namespace TipoCambio.Classes
             {
                 // Se deserializa el JSON, verificando el resultado de la funcion.
                 if (DeserializarJSON() != 0)
+                {
+                    return 2;
+                }
+
+                return 0;
+            }
+
+            else
+            {
+                return 1;
+            }
+        }
+
+
+        // Aqui empieza HTML tablas
+
+        /*
+         * Web request para obtener la tabla de un HTML
+         */
+        protected int RequestHTML(IList<string> datos_url, IList<string> parameters, IList<string> values)
+        {
+            // Declaracion e inicializacion de variables.
+            var web = new HtmlAgilityPack.HtmlWeb();
+            int ejecucion = 0;
+            // Inicio de la url a usar.
+            string url = datos_url[0] + "://" + datos_url[1];
+
+            try
+            {
+                // Se crea la URL a partir de la lista de valores y parametros (Si el metodo es GET).
+                if (datos_url[2] == "GET")
+                {
+                    for (int i = 0; i < parameters.Count; i++)
+                    {
+                        url += parameters[i] + "=" + values[i];
+
+                        if (i < parameters.Count - 1)
+                        {
+                            url = url + "&";
+                        }
+                    }
+
+
+                    // Se hace la peticion y se almacena el resultado como cadena en el atributo respuestaRequestHTML.
+                    // Se carga la URL
+                    // La petición se hace como una consulta de las tablas
+                    var doc = web.Load(url);
+                    respuestaRequestHTML = from table in doc.DocumentNode.SelectNodes("//table").Cast<HtmlNode>()
+                                           from row in table.SelectNodes("tr").Cast<HtmlNode>()
+                                           from cambio in row.SelectNodes("td").Cast<HtmlNode>()
+                                           select new { Table = table.Id, CambioText = cambio.InnerText };
+
+                }
+
+                // Se crea la lista de parametros a pasar hacia la URL (Si el metodo es POST).
+                else if (datos_url[2] == "POST")
+                {
+                    // En este caso aun no utilizo un metodo POST
+                    Console.WriteLine("Error No existe metodo POST para tabla HTML.");
+                    return ejecucion = 0;
+                }
+
+                Console.WriteLine("Se ejecutó la petición web HTML correctamente.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al ejecutar la petición web HTML: " + ex.Message);
+                ejecucion = 1;
+            }
+
+            return ejecucion;
+        }
+
+
+
+        /*
+         * Deserializamos y obtenemos los resultados de la tabla atravez de una lista
+         */
+        protected int DeserializarHTML()
+        {
+            int ejecucion = 0;
+
+            // Se realiza la deserializacion del HTML, formamos una lista de strings.
+            try
+            {
+                foreach (var cambio in respuestaRequestHTML)
+                {
+                    objetoRequestHTML.Add(cambio.CambioText);
+                }
+
+                Console.WriteLine("Se convirtió el HTML correctamente.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al convertir el HTML: " + ex.Message);
+                ejecucion = 2;
+            }
+
+            return ejecucion;
+        }
+
+
+
+        /* Metodo que permite crear una lista con los valores obtenidos de un tipo de cambio (Formato de acuerdo a los campos en la BD).
+         * Notar el uso del atributo objetoFecha para ingresar la fecha a la lista.
+         */
+
+
+        protected int WebRequestHTML(IList<string> datos_url, IList<string> parameters, IList<string> values)
+        {
+            // Se ejecuta y verifica el Web Request HTML.
+            if (RequestHTML(datos_url, parameters, values) == 0)
+            {
+                // Se deserializa el JSON, verificando el resultado de la funcion.
+                if (DeserializarHTML() != 0)
                 {
                     return 2;
                 }

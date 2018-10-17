@@ -17,6 +17,12 @@ namespace TipoCambio
 
             MonedaMexico mex = new MonedaMexico();
             MonedaCanada can = new MonedaCanada();
+            MonedaArgentina arg = new MonedaArgentina();
+
+            // Prueba Argentina
+
+            IList<string> k = arg.ObtenerHoy();
+            IList<string> l = arg.ObtenerFecha("09/10/2018");
 
             // Prueba con el dia de hoy.
             IList<string> a = mex.ObtenerHoy();
@@ -55,13 +61,13 @@ namespace TipoCambio
             };
 
             // Se instancia la clase StoredProcedures para ejecutar un SP en la BD.
-            StoredProcedures procedimiento = new StoredProcedures("AppAccess", "Data@cces18", "unicaribe.cdfuelu7xyg0.us-east-1.rds.amazonaws.com", "tipo_cambio");
+            //StoredProcedures procedimiento = new StoredProcedures("AppAccess", "Data@cces18", "unicaribe.cdfuelu7xyg0.us-east-1.rds.amazonaws.com", "tipo_cambio");
 
             // Se preparan los parametros de ejecucion del SP.
-            string storedProcedure = "insert_valor";
+            //string storedProcedure = "insert_valor";
 
             // Se ejecuta el SP.
-            procedimiento.EjecutarSP(storedProcedure, parametros, a);
+            //procedimiento.EjecutarSP(storedProcedure, parametros, a);
         }
     }
 }
