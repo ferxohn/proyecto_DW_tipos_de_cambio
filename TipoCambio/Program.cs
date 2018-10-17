@@ -19,9 +19,13 @@ namespace TipoCambio
             MonedaMexico mex = new MonedaMexico();
             MonedaCanada can = new MonedaCanada();
             MonedaArgentina arg = new MonedaArgentina();
+            MonedaBolivia bv = new MonedaBolivia();
+
+            // Prueba Bolvia
+            IList<string> m = bv.ObtenerHoy();
+            IList<string> n = bv.ObtenerFecha("09/10/2018");
 
             // Prueba Argentina
-
             IList<string> k = arg.ObtenerHoy();
             IList<string> l = arg.ObtenerFecha("09/10/2018");
 

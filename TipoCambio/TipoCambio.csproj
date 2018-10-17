@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="_code\BusinessRules\MonedaBolivia.cs" />
     <Compile Include="_code\BusinessRules\MonedaCanada.cs" />
     <Compile Include="_code\BusinessRules\MonedaArgentina.cs" />
     <Compile Include="_code\BusinessRules\MonedaMexico.cs" />
