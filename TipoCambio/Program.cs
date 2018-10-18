@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TipoCambio.DataAccess;
 using TipoCambio.BusinessRules;
 using TipoCambio.Classes;
+using HtmlAgilityPack;
 
 namespace TipoCambio
 {
@@ -17,9 +18,12 @@ namespace TipoCambio
 
             MonedaMexico mex = new MonedaMexico();
             MonedaCanada can = new MonedaCanada();
+            MonedaArgentina arg = new MonedaArgentina();
+            MonedaBolivia bv = new MonedaBolivia();
             MonedaBrasil bra = new MonedaBrasil();
 
             bra.ObtenerFecha("12/09/2018");
+
 
             // Prueba con el dia de hoy.
             IList<string> a = mex.ObtenerHoy();
@@ -41,11 +45,13 @@ namespace TipoCambio
             IList<string> i = mex.ObtenerFecha("08/102019");
             IList<string> j = can.ObtenerFecha("08/102019");
 
-            //Obtención del dato de tipo de cambio estan en la clase WebRequest
-            //WebRequests obtener_datos = new WebRequests();
-            //string fecha = "09/10/2018";
-            //string dato = obtener_datos.Mexico_webrequest(fecha);
-            //Console.WriteLine("El tipo de cambio de MXN es "+ dato);
+            // Prueba Bolvia
+            IList<string> m = bv.ObtenerHoy();
+            IList<string> n = bv.ObtenerFecha("09/10/2018");
+
+            // Prueba Argentina
+            IList<string> k = arg.ObtenerHoy();
+            IList<string> l = arg.ObtenerFecha("09/10/2018");
 
 
             // Declaracion e inicializacion de variables.
