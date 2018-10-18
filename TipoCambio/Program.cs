@@ -17,6 +17,9 @@ namespace TipoCambio
 
             MonedaMexico mex = new MonedaMexico();
             MonedaCanada can = new MonedaCanada();
+            MonedaBrasil bra = new MonedaBrasil();
+
+            bra.ObtenerFecha("12/09/2018");
 
             // Prueba con el dia de hoy.
             IList<string> a = mex.ObtenerHoy();

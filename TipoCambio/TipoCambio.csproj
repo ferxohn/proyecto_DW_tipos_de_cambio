@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="_code\BusinessRules\MonedaBrasil.cs" />
     <Compile Include="_code\BusinessRules\MonedaCanada.cs" />
     <Compile Include="_code\BusinessRules\MonedaMexico.cs" />
     <Compile Include="_code\Classes\ConexionBD.cs" />
@@ -61,11 +62,15 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Content Include="_code\SQL\ActualizarMoneda.sql" />
+    <Content Include="_code\SQL\ActualizarValor.sql" />
     <Content Include="_code\SQL\CrearBD.sql" />
     <Content Include="_code\SQL\CrearSPInsertMoneda.sql" />
     <Content Include="_code\SQL\CrearSPInsertValor.sql" />
     <Content Include="_code\SQL\CrearTableMonedas.sql" />
     <Content Include="_code\SQL\CrearTableValores.sql" />
+    <Content Include="_code\SQL\EliminarMoneda.sql" />
+    <Content Include="_code\SQL\EliminarValor.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
