@@ -21,14 +21,6 @@ namespace TipoCambio
             MonedaArgentina arg = new MonedaArgentina();
             MonedaBolivia bv = new MonedaBolivia();
 
-            // Prueba Bolvia
-            IList<string> m = bv.ObtenerHoy();
-            IList<string> n = bv.ObtenerFecha("09/10/2018");
-
-            // Prueba Argentina
-            IList<string> k = arg.ObtenerHoy();
-            IList<string> l = arg.ObtenerFecha("09/10/2018");
-
             // Prueba con el dia de hoy.
             IList<string> a = mex.ObtenerHoy();
             IList<string> b = can.ObtenerHoy();
@@ -49,11 +41,13 @@ namespace TipoCambio
             IList<string> i = mex.ObtenerFecha("08/102019");
             IList<string> j = can.ObtenerFecha("08/102019");
 
-            //Obtención del dato de tipo de cambio estan en la clase WebRequest
-            //WebRequests obtener_datos = new WebRequests();
-            //string fecha = "09/10/2018";
-            //string dato = obtener_datos.Mexico_webrequest(fecha);
-            //Console.WriteLine("El tipo de cambio de MXN es "+ dato);
+            // Prueba Bolvia
+            IList<string> m = bv.ObtenerHoy();
+            IList<string> n = bv.ObtenerFecha("09/10/2018");
+
+            // Prueba Argentina
+            IList<string> k = arg.ObtenerHoy();
+            IList<string> l = arg.ObtenerFecha("09/10/2018");
 
 
             // Declaracion e inicializacion de variables.
@@ -66,13 +60,13 @@ namespace TipoCambio
             };
 
             // Se instancia la clase StoredProcedures para ejecutar un SP en la BD.
-            //StoredProcedures procedimiento = new StoredProcedures("AppAccess", "Data@cces18", "unicaribe.cdfuelu7xyg0.us-east-1.rds.amazonaws.com", "tipo_cambio");
+            StoredProcedures procedimiento = new StoredProcedures("AppAccess", "Data@cces18", "unicaribe.cdfuelu7xyg0.us-east-1.rds.amazonaws.com", "tipo_cambio");
 
             // Se preparan los parametros de ejecucion del SP.
-            //string storedProcedure = "insert_valor";
+            string storedProcedure = "insert_valor";
 
             // Se ejecuta el SP.
-            //procedimiento.EjecutarSP(storedProcedure, parametros, a);
+            procedimiento.EjecutarSP(storedProcedure, parametros, a);
         }
     }
 }

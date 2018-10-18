@@ -234,8 +234,6 @@ namespace TipoCambio.Classes
                             url = url + "&";
                         }
                     }
-
-
                     // Se hace la peticion y se almacena el resultado como cadena en el atributo respuestaRequestHTML.
                     // Se carga la URL
                     // La petición se hace como una consulta de las tablas

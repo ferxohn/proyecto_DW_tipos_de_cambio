@@ -88,11 +88,9 @@ namespace TipoCambio.BusinessRules
             // Se genera la lista de valores.
             IList<string> values = new List<String>
             {
-                /*objetoFecha.ToString("dd/MM/yyyy"),
-                "2"*/
-                "29",
-                "9",
-                "2018"
+                Convert.ToString(objetoFecha.Day),
+                Convert.ToString(objetoFecha.Month),
+                Convert.ToString(objetoFecha.Year)
             };
 
             // Se ejecuta el metodo WebRequestHTML que hace todo el trabajo, verificando su resultado.
@@ -130,9 +128,9 @@ namespace TipoCambio.BusinessRules
             // Se genera la lista de valores.
             IList<string> values = new List<String>
             {
-                "29",
-                "9",
-                "2018"
+                Convert.ToString(objetoFecha.Day),
+                Convert.ToString(objetoFecha.Month),
+                Convert.ToString(objetoFecha.Year)
             };
 
 
