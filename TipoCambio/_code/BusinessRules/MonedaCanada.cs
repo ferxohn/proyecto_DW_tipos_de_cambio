@@ -60,7 +60,7 @@ namespace TipoCambio.BusinessRules
         /* Metodo que permite obtener el tipo de cambio de hoy.
          * Regresa la lista de valores que se subiran a la BD.
          */
-        public IList<string> JSON_Hoy()
+        private IList<string> JSON_Hoy()
         {
             // Declaracion e inicializacion de variables.
             IList<string> salida = null;
@@ -95,7 +95,7 @@ namespace TipoCambio.BusinessRules
         /* Metodo que permite obtener el tipo de cambio de una fecha especifica.
          * Regresa la lista de valores que se subiran a la BD.
          */
-        public IList<string> JSON_Fecha(string fecha)
+        private IList<string> JSON_Fecha(string fecha)
         {
             // Declaracion e inicializacion de variables.
             IList<string> salida = null;

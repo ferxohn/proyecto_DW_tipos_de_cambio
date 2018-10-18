@@ -232,6 +232,7 @@ namespace TipoCambio.Classes
         }
 
 
+
         // Aqui empieza HTML tablas
 
         /*
@@ -334,14 +335,26 @@ namespace TipoCambio.Classes
                 {
                     return 2;
                 }
+              return 0;
+            }
+          else
+            {
+                return 1;
+            }
+        }
+
+        protected int WebRequestCSV(IList<string> datos_url, IList<string> parameters, IList<string> values)
+        {
+            if (RequestWeb(datos_url, parameters, values) == 0)
+            {
+
 
                 return 0;
             }
 
-            else
-            {
-                return 1;
-            }
+
+            return 1;
+
         }
 
         /* Metodo abstracto con el cual es posible obtener el tipo de cambio de hoy.
