@@ -201,6 +201,17 @@ namespace TipoCambio.Classes
             }
         }
 
+        protected int WebRequestCSV(IList<string> datos_url, IList<string> parameters, IList<string> values)
+        {
+            if (RequestWeb(datos_url, parameters, values) == 0)
+            {
+
+                return 0;
+            }
+
+            return 1;
+        }
+
         /* Metodo abstracto con el cual es posible obtener el tipo de cambio de hoy.
          * Regresa la lista con los valores a subir a la BD
          */
