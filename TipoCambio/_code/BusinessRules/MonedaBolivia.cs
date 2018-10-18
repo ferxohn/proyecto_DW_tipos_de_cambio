@@ -85,6 +85,13 @@ namespace TipoCambio.BusinessRules
             // El atributo objetoFecha almacena la fecha de hoy.
             objetoFecha = DateTime.Today;
 
+            // Se valida si la fecha es fin de semana
+            if (ValidarFechaFinSemana(objetoFecha.ToString("dd/MM/yyyy")) != 0)
+            {
+                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
+                return null;
+            }
+
             // Se genera la lista de valores.
             IList<string> values = new List<String>
             {
@@ -120,6 +127,13 @@ namespace TipoCambio.BusinessRules
 
             // Se valida la fecha ingresada.
             if (ValidarFecha(fecha) != 0)
+            {
+                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
+                return null;
+            }
+
+            // Se valida si la fecha es fin de semana
+            if (ValidarFechaFinSemana(fecha) != 0)
             {
                 Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
                 return null;

@@ -145,6 +145,31 @@ namespace TipoCambio.Classes
             }
         }
 
+        /*
+          *  Validamos si la fecha cae en fin de semana, si cae en fin de semana no tiene caso que lo tengamos
+         */
+        protected int ValidarFechaFinSemana(string fecha)
+        {
+            //DateTime.TryParse permite comprobar que el formato de fecha ingresado sea correcto.
+            if (DateTime.TryParse(fecha, out objetoFecha))
+            {
+                // Como verificacion extra, se comprueba que la fecha ingresada no sea futura.
+                if (objetoFecha.DayOfWeek.ToString() == "Saturday" || objetoFecha.DayOfWeek.ToString() == "Sunday")
+                {
+                    Console.WriteLine("Error Los fines de semanas no hay tipos de cambio");
+                    return 2;
+                }
+
+                return 0;
+            }
+
+            else
+            {
+                Console.WriteLine("Se ha ingresado una fecha incorrecta.");
+                return 1;
+            }
+        }
+
         /* Metodo que permite deserializar un string en formato JSON.
          * Regresa un entero de verificacion.
          */
