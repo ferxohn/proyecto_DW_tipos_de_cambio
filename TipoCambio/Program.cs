@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using TipoCambio.DataAccess;
 using TipoCambio.BusinessRules;
 using TipoCambio.Classes;
-using HtmlAgilityPack;
 
 namespace TipoCambio
 {
@@ -21,6 +20,7 @@ namespace TipoCambio
             MonedaArgentina arg = new MonedaArgentina();
             MonedaBolivia bv = new MonedaBolivia();
             MonedaBrasil bra = new MonedaBrasil();
+            MonedaRepublicaDominicana dom = new MonedaRepublicaDominicana();
 
             bra.ObtenerFecha("12/09/2018");
 
@@ -52,6 +52,10 @@ namespace TipoCambio
             // Prueba Argentina
             IList<string> k = arg.ObtenerHoy();
             IList<string> l = arg.ObtenerFecha("09/10/2018");
+
+            //Prueba Republica Dominicana 
+            IList<string> o = dom.ObtenerHoy();
+            IList<string> p = dom.ObtenerFecha("09/10/2018");
 
 
             // Declaracion e inicializacion de variables.

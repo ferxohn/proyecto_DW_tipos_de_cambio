@@ -7,6 +7,7 @@ using System.Net;
 using System.IO;
 using Newtonsoft.Json;
 using HtmlAgilityPack;
+using LinqToExcel;
 
 
 namespace TipoCambio.Classes
@@ -22,6 +23,9 @@ namespace TipoCambio.Classes
         // Atributos para html.
         protected dynamic respuestaRequestHTML = null;
         protected List<string> objetoRequestHTML = new List<string>();
+        //  Attributos para excel
+        protected dynamic objetoRequestExcel = null;
+        //Fecha
         protected DateTime objetoFecha;
 
         /* Metodo que permite realizar el Web Request. 
@@ -330,7 +334,7 @@ namespace TipoCambio.Classes
             // Se ejecuta y verifica el Web Request HTML.
             if (RequestHTML(datos_url, parameters, values) == 0)
             {
-                // Se deserializa el JSON, verificando el resultado de la funcion.
+                // Se deserializa el HTML, verificando el resultado de la funcion.
                 if (DeserializarHTML() != 0)
                 {
                     return 2;
@@ -342,6 +346,9 @@ namespace TipoCambio.Classes
                 return 1;
             }
         }
+
+        // Aqui termina HTML tablas
+
 
         protected int WebRequestCSV(IList<string> datos_url, IList<string> parameters, IList<string> values)
         {
@@ -356,6 +363,151 @@ namespace TipoCambio.Classes
             return 1;
 
         }
+
+
+        // Aqui empieza Excel tablas
+        /*
+         * Web request para obtener una descarga, necesitamos el nombre que le pondremos al archivo 
+         */
+        protected int RequestDescarga(IList<string> datos_url, IList<string> parameters, IList<string> values, string nombrearchivo)
+        {
+            // Declaracion e inicializacion de variables.
+            // Obtenemos nuestra ruta de descarga
+            string downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+            int ejecucion = 0;
+            // Inicio de la url a usar.
+            string url = datos_url[0] + "://" + datos_url[1];
+
+            try
+            {
+                if (datos_url[2] == "GET")
+                {
+                    // En el caso que se necesiten parametros para descargar 
+                    if (parameters != null)
+                    {
+                        // Se crea la URL a partir de la lista de valores y parametros (Si el metodo es GET).
+                        for (int i = 0; i < parameters.Count; i++)
+                        {
+                            url += parameters[i] + "=" + values[i];
+
+                            if (i < parameters.Count - 1)
+                            {
+                                url = url + "&";
+                            }
+                        }
+                    }
+                    // Se descarga el archivo en la ruta de descargas con el nombre que se manda
+                    WebClient myWebClient = new WebClient();
+                    string destino = Path.Combine(downloadsPath, nombrearchivo);
+                    myWebClient.DownloadFile(url, destino);
+                }
+                // Descargar excel por metodo post (Si el metodo es POST).
+                else if (datos_url[2] == "POST")
+                {
+                    // En este caso aun no utilizo un metodo POST
+                    Console.WriteLine("Error No existe metodo POST para descargar Archivo.");
+                    return ejecucion = 1;
+                }
+
+                Console.WriteLine("Se ejecutó la petición descarga Archivo correctamente. ");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al ejecutar la petición descarga EArchivo: " + ex.Message);
+                ejecucion = 1;
+            }
+
+
+            return ejecucion;
+        }
+
+
+
+        /*
+         * Deserializamos y obtenemos los resultados de la tabla atravez de una consulta
+         */
+        // Necesitamos el nombre del archivo
+        protected int DeserializarExcel(string nombrearchivo)
+        {
+            int ejecucion = 0;
+            string downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+            // Se realiza la deserializacion del Excel tomando una consulta de los valores
+            try
+            {
+                string acceso_archivo = "" + downloadsPath + "\\" + nombrearchivo;
+                var respuestaRequestExcel = new ExcelQueryFactory(acceso_archivo);
+                string nombre_tabla_excel = "Tasa Sondeo, Ventanilla, Dólar";
+                objetoRequestExcel = from data in respuestaRequestExcel.Worksheet(nombre_tabla_excel) select data;
+                Console.WriteLine("Se convirtió el Excel correctamente.");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al convertir el Excel: " + ex.Message);
+                ejecucion = 2;
+            }
+
+
+            return ejecucion;
+        }
+
+
+        /*
+         * Eliminamos la tabla para que no tengamos conflicto la proxima consulta
+         */
+
+        protected int EliminarArchivo(string nombrearchivo)
+        {
+            int ejecucion = 0;
+            string downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+            // Se realiza la eliminacion del Archivo, primero verificando si existe
+            if (System.IO.File.Exists(downloadsPath + "\\" + nombrearchivo))
+            {
+                try
+                {
+                    System.IO.File.Delete(downloadsPath + "\\" + nombrearchivo);
+                    Console.WriteLine("Se elimino el archivo correctamente");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error al ejecutar la eliminacion de archivo: " + ex.Message);
+                    ejecucion = 3;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Error al ejecutar la eliminacion de archivo: No existe el archivo ");
+                ejecucion = 3;
+            }
+
+
+            return ejecucion;
+        }
+
+        /* Metodo que permite crear una lista con los valores obtenidos de un tipo de cambio (Formato de acuerdo a los campos en la BD).
+         * Notar el uso del atributo objetoFecha para ingresar la fecha a la lista.
+         */
+
+
+        protected int WebRequestExcel(IList<string> datos_url, IList<string> parameters, IList<string> values, string nombrearchivo)
+        {
+            // Se ejecuta y verifica el Web Request HTML.
+            if (RequestDescarga(datos_url, parameters, values, nombrearchivo) == 0)
+            {
+                if (DeserializarExcel(nombrearchivo) != 0)
+                {
+                    return 2;
+                }
+
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
+        // Aqui termina Excel tablas
 
         /* Metodo abstracto con el cual es posible obtener el tipo de cambio de hoy.
          * Regresa la lista con los valores a subir a la BD

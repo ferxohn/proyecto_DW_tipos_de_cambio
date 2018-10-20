@@ -61,7 +61,7 @@ namespace TipoCambio.BusinessRules
 
             // Se crea y regresa la lista de valores que se subiran a la BD. 
             // Como argentina manda su dato con "," comas, tenemos que convertir esa coma a punto
-            salida = CrearListaIndividual("0", tipoCambio.Replace(",", "."), "ARG");
+            salida = CrearListaIndividual("0", tipoCambio.Replace(",", "."), "ARP");
 
             return salida;
         }
@@ -140,7 +140,7 @@ namespace TipoCambio.BusinessRules
             };
 
 
-            // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo, verificando su resultado.
+            // Se ejecuta el metodo WebRequestHTML que hace todo el trabajo, verificando su resultado.
             if (WebRequestHTML(url_html, parameters_html, values) != 0)
             {
                 Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");

@@ -66,7 +66,7 @@ namespace TipoCambio.BusinessRules
 
             // Se crea y regresa la lista de valores que se subiran a la BD. 
             // Como argentina manda su dato con "," comas, tenemos que convertir esa coma a punto
-            salida = CrearListaIndividual(tipoCambioCompra, tipoCambio, "BV");
+            salida = CrearListaIndividual(tipoCambioCompra, tipoCambio, "Bs");
 
             return salida;
         }
