@@ -155,7 +155,7 @@ namespace TipoCambio.BusinessRules
             IList<string> values = null;
 
             // Se ejecuta el metodo WebRequestExcel que hace todo el trabajo, verificando su resultado.
-            if (WebRequestExcel(url_excel, parameters_excel, values, "datos_republica_dominicana.xls") != 0)
+            if (WebRequestExcel(url_excel, parameters_excel, values, "datos_republica_dominicana.xls", "Tasa Sondeo, Ventanilla, Dólar") != 0)
             {
                 Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
                 return null;
@@ -203,7 +203,7 @@ namespace TipoCambio.BusinessRules
 
 
             // Se ejecuta el metodo WebRequestExcel que hace todo el trabajo, verificando su resultado.
-            if (WebRequestExcel(url_excel, parameters_excel, values, "datos_republica_dominicana.xls") != 0)
+            if (WebRequestExcel(url_excel, parameters_excel, values, "datos_republica_dominicana.xls", "Tasa Sondeo, Ventanilla, Dólar") != 0)
             {
                 Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
                 return null;

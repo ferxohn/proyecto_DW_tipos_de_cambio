@@ -427,7 +427,7 @@ namespace TipoCambio.Classes
          * Deserializamos y obtenemos los resultados de la tabla atravez de una consulta
          */
         // Necesitamos el nombre del archivo
-        protected int DeserializarExcel(string nombrearchivo)
+        protected int DeserializarExcel(string nombrearchivo, string nombretabla)
         {
             int ejecucion = 0;
             string downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
@@ -436,8 +436,7 @@ namespace TipoCambio.Classes
             {
                 string acceso_archivo = "" + downloadsPath + "\\" + nombrearchivo;
                 var respuestaRequestExcel = new ExcelQueryFactory(acceso_archivo);
-                string nombre_tabla_excel = "Tasa Sondeo, Ventanilla, Dólar";
-                objetoRequestExcel = from data in respuestaRequestExcel.Worksheet(nombre_tabla_excel) select data;
+                objetoRequestExcel = from data in respuestaRequestExcel.Worksheet(nombretabla) select data;
                 Console.WriteLine("Se convirtió el Excel correctamente.");
 
             }
@@ -489,12 +488,12 @@ namespace TipoCambio.Classes
          */
 
 
-        protected int WebRequestExcel(IList<string> datos_url, IList<string> parameters, IList<string> values, string nombrearchivo)
+        protected int WebRequestExcel(IList<string> datos_url, IList<string> parameters, IList<string> values, string nombrearchivo, string nombretabla)
         {
             // Se ejecuta y verifica el Web Request HTML.
             if (RequestDescarga(datos_url, parameters, values, nombrearchivo) == 0)
             {
-                if (DeserializarExcel(nombrearchivo) != 0)
+                if (DeserializarExcel(nombrearchivo, nombretabla) != 0)
                 {
                     return 2;
                 }
