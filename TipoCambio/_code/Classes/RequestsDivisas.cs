@@ -174,6 +174,7 @@ namespace TipoCambio.Classes
             }
         }
 
+
         /* Metodo que permite deserializar un string en formato JSON.
          * Regresa un entero de verificacion.
          */
@@ -350,20 +351,24 @@ namespace TipoCambio.Classes
         // Aqui termina HTML tablas
 
 
-        protected int WebRequestCSV(IList<string> datos_url, IList<string> parameters, IList<string> values)
+        protected int DeserializarCSV()
         {
-            if (RequestWeb(datos_url, parameters, values) == 0)
+            int ejecucion = 0;
+
+            // Se realiza la deserializacion del JSON.
+            try
             {
-
-
-                return 0;
+                objetoRequest = new CsvReader(new StringReader(respuestaRequest));
+                Console.WriteLine("Se convirtió el CSV correctamente.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al convertir el CSV: " + ex.Message);
+                ejecucion = 2;
             }
 
-
-            return 1;
-
+            return ejecucion;
         }
-
 
         // Aqui empieza Excel tablas
         /*

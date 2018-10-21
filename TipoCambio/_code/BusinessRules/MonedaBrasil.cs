@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TipoCambio.Classes;
+using Microsoft.Office.Interop.Excel;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace TipoCambio.BusinessRules
 {
@@ -33,6 +35,47 @@ namespace TipoCambio.BusinessRules
             };
         }
 
+        private IList<string> CrearListaCSV(IList<string> url_csv, IList<string> parameters_csv, IList<string> values)
+        {
+            IList<string> salida = null;
+            // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo, verificando su resultado.
+            if (RequestWeb(url_csv, parameters_csv, values) != 0)
+            {
+                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
+                return null;
+            }
+
+            if (objetoResponse.ContentType.ToString() == "text/html;charset=ISO-8859-1")
+            {
+                salida = CrearListaIndividual("0", "0", "BRL");
+                return salida;
+            }
+
+            respuestaRequest = respuestaRequest.Replace("\n", string.Empty);
+            respuestaRequest = respuestaRequest.Replace(",", ".");
+            respuestaRequest = respuestaRequest.Replace(";", ",");
+
+            if (DeserializarCSV() != 0)
+            {
+                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
+                return null;
+            }
+
+            objetoRequest.Read();
+
+            if (objetoFecha.ToString("ddMMyyyy") != objetoRequest[0])
+            {
+                salida = CrearListaIndividual("0", "0", "BRL");
+                return salida;
+            }
+
+            else
+            {
+                salida = CrearListaIndividual(objetoRequest[4], objetoRequest[5], "BRL");
+                return salida;
+            }
+        }
+
         // Metodo ObtenerHoy se sobreescribe con JSON_Hoy.
         public override IList<string> ObtenerHoy() => CSV_Hoy();
 
@@ -47,19 +90,20 @@ namespace TipoCambio.BusinessRules
             // El atributo objetoFecha almacena la fecha de hoy.
             objetoFecha = DateTime.Today;
 
+            if (FinSemana() != 0)
+            {
+                salida = CrearListaIndividual("0", "0", "BRL");
+                return salida;
+            }
+
             // Se genera la lista de valores.
             IList<string> values = new List<String>
             {
                 objetoFecha.ToString("dd/MM/yyyy"),
-                objetoFecha.ToString("dd/MM/yyyy"),
+                objetoFecha.AddDays(1).ToString("dd/MM/yyyy")
             };
 
-            // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo, verificando su resultado.
-            if (WebRequestCSV(url_csv, parameters_csv, values) != 0)
-            {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
-                return null;
-            }
+            salida = CrearListaCSV(url_csv, parameters_csv, values);
 
             Console.WriteLine("La ejecución de la función se completó de forma correcta.");
             return salida;
@@ -83,22 +127,25 @@ namespace TipoCambio.BusinessRules
                 return null;
             }
 
+            if (FinSemana() != 0)
+            {
+                salida = CrearListaIndividual("0", "0", "BRL");
+                return salida;
+            }
+
             // Se genera la lista de valores.
             IList<string> values = new List<String>
             {
-                "09/10/2018",
-                "10/10/2018",
+                objetoFecha.ToString("dd/MM/yyyy"),
+                objetoFecha.AddDays(1).ToString("dd/MM/yyyy")
             };
 
-            // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo, verificando su resultado.
-            if (WebRequestCSV(url_csv, parameters_csv, values) != 0)
-            {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
-                return null;
-            }
+            // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
+            salida = CrearListaCSV(url_csv, parameters_csv, values);
 
             Console.WriteLine("La ejecución de la función se completó de forma correcta.");
             return salida;
         }
     }
+
 }
