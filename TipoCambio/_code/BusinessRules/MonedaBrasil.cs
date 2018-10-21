@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TipoCambio.Classes;
-using Microsoft.Office.Interop.Excel;
-using Excel = Microsoft.Office.Interop.Excel;
+
 
 namespace TipoCambio.BusinessRules
 {
-    // La clase MonedaMexico hereda a la clase RequestsDivisas.
+    // La clase MonedaBrasil hereda a la clase RequestsDivisas.
     class MonedaBrasil : RequestsDivisas
     {
         /* Atributos de la clase. */
@@ -38,6 +37,7 @@ namespace TipoCambio.BusinessRules
         private IList<string> CrearListaCSV(IList<string> url_csv, IList<string> parameters_csv, IList<string> values)
         {
             IList<string> salida = null;
+
             // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo, verificando su resultado.
             if (RequestWeb(url_csv, parameters_csv, values) != 0)
             {
@@ -76,7 +76,7 @@ namespace TipoCambio.BusinessRules
             }
         }
 
-        // Metodo ObtenerHoy se sobreescribe con JSON_Hoy.
+        // Metodo ObtenerHoy se sobreescribe con CSV_Hoy.
         public override IList<string> ObtenerHoy() => CSV_Hoy();
 
         /* Metodo que permite obtener el tipo de cambio de hoy.
@@ -109,7 +109,7 @@ namespace TipoCambio.BusinessRules
             return salida;
         }
 
-        // Metodo ObtenerHoy se sobreescribe con JSON_Hoy.
+        // Metodo ObtenerHoy se sobreescribe con CSV_Hoy.
         public override IList<string> ObtenerFecha(string fecha) => CSV_Fecha(fecha);
 
         /* Metodo que permite obtener el tipo de cambio de una fecha especifica.

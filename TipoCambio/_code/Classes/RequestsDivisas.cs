@@ -175,6 +175,16 @@ namespace TipoCambio.Classes
         }
 
 
+        // Nuestro checar fin es mas chido :v
+        protected int FinSemana()
+        {
+            if (objetoFecha.DayOfWeek.ToString() == "Saturday" || objetoFecha.DayOfWeek.ToString() == "Sunday")
+            {
+                return 1;
+            }
+            return 0;
+        }
+
         /* Metodo que permite deserializar un string en formato JSON.
          * Regresa un entero de verificacion.
          */
