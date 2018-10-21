@@ -83,8 +83,8 @@ namespace TipoCambio.BusinessRules
             // Se valida si la fecha es fin de semana
             if (ValidarFechaFinSemana(objetoFecha.ToString("dd/MM/yyyy")) != 0)
             {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
-                return null;
+                salida = CrearListaIndividual("0", "0", "ARP");
+                return salida;
             }
 
             // Se genera la lista de valores.
@@ -128,8 +128,8 @@ namespace TipoCambio.BusinessRules
             // Se valida si la fecha es fin de semana
             if (ValidarFechaFinSemana(fecha) != 0)
             {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
-                return null;
+                salida = CrearListaIndividual("0", "0", "ARP");
+                return salida;
             }
 
             // Se genera la lista de valores.
