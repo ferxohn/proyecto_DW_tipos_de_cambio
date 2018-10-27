@@ -7,8 +7,8 @@ using System.Net;
 using System.IO;
 using Newtonsoft.Json;
 using HtmlAgilityPack;
+using CsvHelper;
 using LinqToExcel;
-
 
 namespace TipoCambio.Classes
 {
@@ -20,12 +20,12 @@ namespace TipoCambio.Classes
         // Atributos de la clase.
         protected string respuestaRequest = null;
         protected dynamic objetoRequest = null;
-        // Atributos para html.
+        // Atributos para HTML.
         protected dynamic respuestaRequestHTML = null;
         protected List<string> objetoRequestHTML = new List<string>();
-        //  Attributos para excel
+        // Attributos para Excel
         protected dynamic objetoRequestExcel = null;
-        //Fecha
+        // Objeto Fecha.
         protected DateTime objetoFecha;
 
         /* Metodo que permite realizar el Web Request. 
@@ -50,7 +50,6 @@ namespace TipoCambio.Classes
             // Declaracion e inicializacion de variables.
             int ejecucion = 0;
             HttpWebRequest request = null;
-            HttpWebResponse response = null;
             // Inicio de la url a usar.
             string url = datos_url[0] + "://" + datos_url[1];
 
@@ -71,8 +70,8 @@ namespace TipoCambio.Classes
 
                     // Se hace la peticion y se almacena el resultado como cadena en el atributo respuestaRequest.
                     request = (HttpWebRequest)WebRequest.Create(url);
-                    response = (HttpWebResponse)request.GetResponse();
-                    respuestaRequest = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                    objetoRequest = (HttpWebResponse)request.GetResponse();
+                    respuestaRequest = new StreamReader(objetoRequest.GetResponseStream()).ReadToEnd();
                 }
 
                 // Se crea la lista de parametros a pasar hacia la URL (Si el metodo es POST).
@@ -108,8 +107,8 @@ namespace TipoCambio.Classes
                         stream.Write(data, 0, data.Length);
                     }
 
-                    response = (HttpWebResponse)request.GetResponse();
-                    respuestaRequest = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                    objetoRequest = (HttpWebResponse)request.GetResponse();
+                    respuestaRequest = new StreamReader(objetoRequest.GetResponseStream()).ReadToEnd();
                 }
 
                 Console.WriteLine("Se ejecutó la petición web correctamente.");
@@ -149,9 +148,7 @@ namespace TipoCambio.Classes
             }
         }
 
-        /*
-          *  Validamos si la fecha cae en fin de semana, si cae en fin de semana no tiene caso que lo tengamos
-         */
+        // Metodo que permite validar si la fecha de prueba no es un fin de semana.
         protected int ValidarFechaFinSemana(string fecha)
         {
             //DateTime.TryParse permite comprobar que el formato de fecha ingresado sea correcto.
@@ -173,7 +170,6 @@ namespace TipoCambio.Classes
                 return 1;
             }
         }
-
 
         // Nuestro checar fin es mas chido :v
         protected int FinSemana()
@@ -222,6 +218,7 @@ namespace TipoCambio.Classes
 
             return salida;
         }
+
         /* Metodo WebRequestJSON para realizar un Web Request a una fuente de tipo JSON.
          * Recibe la lista de parametros explicada en el metodo Requestweb.
          * Regresa un entero de verificacion.
@@ -245,8 +242,6 @@ namespace TipoCambio.Classes
                 return 1;
             }
         }
-
-
 
         // Aqui empieza HTML tablas
 
@@ -283,7 +278,6 @@ namespace TipoCambio.Classes
                                            from row in table.SelectNodes("tr").Cast<HtmlNode>()
                                            from cambio in row.SelectNodes("td").Cast<HtmlNode>()
                                            select new { Table = table.Id, CambioText = cambio.InnerText };
-
                 }
 
                 // Se crea la lista de parametros a pasar hacia la URL (Si el metodo es POST).
@@ -304,8 +298,6 @@ namespace TipoCambio.Classes
 
             return ejecucion;
         }
-
-
 
         /*
          * Deserializamos y obtenemos los resultados de la tabla atravez de una lista
@@ -333,13 +325,9 @@ namespace TipoCambio.Classes
             return ejecucion;
         }
 
-
-
         /* Metodo que permite crear una lista con los valores obtenidos de un tipo de cambio (Formato de acuerdo a los campos en la BD).
          * Notar el uso del atributo objetoFecha para ingresar la fecha a la lista.
          */
-
-
         protected int WebRequestHTML(IList<string> datos_url, IList<string> parameters, IList<string> values)
         {
             // Se ejecuta y verifica el Web Request HTML.
@@ -352,15 +340,14 @@ namespace TipoCambio.Classes
                 }
               return 0;
             }
-          else
+
+            else
             {
                 return 1;
             }
         }
 
         // Aqui termina HTML tablas
-
-
         protected int DeserializarCSV()
         {
             int ejecucion = 0;
@@ -432,11 +419,8 @@ namespace TipoCambio.Classes
                 ejecucion = 1;
             }
 
-
             return ejecucion;
         }
-
-
 
         /*
          * Deserializamos y obtenemos los resultados de la tabla atravez de una consulta
@@ -494,15 +478,12 @@ namespace TipoCambio.Classes
                 ejecucion = 3;
             }
 
-
             return ejecucion;
         }
 
         /* Metodo que permite crear una lista con los valores obtenidos de un tipo de cambio (Formato de acuerdo a los campos en la BD).
          * Notar el uso del atributo objetoFecha para ingresar la fecha a la lista.
          */
-
-
         protected int WebRequestExcel(IList<string> datos_url, IList<string> parameters, IList<string> values, string nombrearchivo, string nombretabla)
         {
             // Se ejecuta y verifica el Web Request HTML.

@@ -21,9 +21,12 @@ namespace TipoCambio
             MonedaBolivia bv = new MonedaBolivia();
             MonedaBrasil bra = new MonedaBrasil();
             MonedaRepublicaDominicana dom = new MonedaRepublicaDominicana();
+            MonedaColombia col = new MonedaColombia();
 
-            bra.ObtenerFecha("12/09/2018");
+            col.ObtenerFecha("17/08/2018");
 
+            //bra.ObtenerFecha("12/09/2018");
+            
 
             // Prueba con el dia de hoy.
             IList<string> a = mex.ObtenerHoy();

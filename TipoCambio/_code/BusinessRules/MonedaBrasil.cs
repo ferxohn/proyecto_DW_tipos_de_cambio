@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using TipoCambio.Classes;
 
-
 namespace TipoCambio.BusinessRules
 {
     // La clase MonedaBrasil hereda a la clase RequestsDivisas.
@@ -45,7 +44,7 @@ namespace TipoCambio.BusinessRules
                 return null;
             }
 
-            if (objetoResponse.ContentType.ToString() == "text/html;charset=ISO-8859-1")
+            if (objetoRequest.ContentType.ToString() == "text/html;charset=ISO-8859-1")
             {
                 salida = CrearListaIndividual("0", "0", "BRL");
                 return salida;
@@ -147,5 +146,4 @@ namespace TipoCambio.BusinessRules
             return salida;
         }
     }
-
 }
