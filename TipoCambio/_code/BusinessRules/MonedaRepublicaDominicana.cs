@@ -46,7 +46,7 @@ namespace TipoCambio.BusinessRules
                 // En este caso como es una lista, tenemos que recorrer y verificar hasta encontrar el valor que deseamos
                 foreach (var data in objetoRequestExcel)
                 {
-                    if (data["Tasas de Cambio del Sondeo por ventanilla del dólar"] == formafecha[0] && data["F2"] == formafecha[1] && data["F3"] == formafecha[2])
+                    if (data[0] == formafecha[0] && data[1] == formafecha[1] && data[2] == formafecha[2])
                     {
                         tipoCambioCompra = data["F4"].ToString();
                         tipoCambioVenta = data["F5"].ToString();
@@ -54,6 +54,10 @@ namespace TipoCambio.BusinessRules
 
                 }
 
+            }
+            if (tipoCambioCompra == "0" && tipoCambioVenta == "0")
+            {
+                Console.WriteLine("Error aun no se ha actualizado el excel del banco de RD, se actualiza antes de la 1:30 pm");
             }
 
             // Se crea y regresa la lista de valores que se subiran a la BD. 

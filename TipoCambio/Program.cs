@@ -21,7 +21,11 @@ namespace TipoCambio
             MonedaBolivia bv = new MonedaBolivia();
             MonedaBrasil bra = new MonedaBrasil();
             MonedaRepublicaDominicana dom = new MonedaRepublicaDominicana();
+<<<<<<< Mods-22-Octubre
             MonedaColombia col = new MonedaColombia();
+=======
+            MonedaEuro eur = new MonedaEuro();
+>>>>>>> master
 
             col.ObtenerFecha("17/08/2018");
 
@@ -59,6 +63,10 @@ namespace TipoCambio
             //Prueba Republica Dominicana 
             IList<string> o = dom.ObtenerHoy();
             IList<string> p = dom.ObtenerFecha("09/10/2018");
+
+            //Prueba xml Euro
+            IList<string> q = eur.ObtenerHoy();
+            IList<string> r = eur.ObtenerFecha("19/10/2018");
 
 
             // Declaracion e inicializacion de variables.
