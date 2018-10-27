@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,11 +21,8 @@ namespace TipoCambio
             MonedaBolivia bv = new MonedaBolivia();
             MonedaBrasil bra = new MonedaBrasil();
             MonedaRepublicaDominicana dom = new MonedaRepublicaDominicana();
-<<<<<<< Mods-22-Octubre
             MonedaColombia col = new MonedaColombia();
-=======
             MonedaEuro eur = new MonedaEuro();
->>>>>>> master
 
             col.ObtenerFecha("17/08/2018");
 
