@@ -22,48 +22,48 @@ namespace TipoCambio
             MonedaBrasil bra = new MonedaBrasil();
             MonedaRepublicaDominicana dom = new MonedaRepublicaDominicana();
             MonedaColombia col = new MonedaColombia();
-            MonedaEuro eur = new MonedaEuro();
+            MonedaEuro eur = new MonedaEuro(); 
 
-            col.ObtenerFecha("17/08/2018");
+            // 1 Mexico
 
-            //bra.ObtenerFecha("12/09/2018");
-            
-
-            // Prueba con el dia de hoy.
             IList<string> a = mex.ObtenerHoy();
-            IList<string> b = can.ObtenerHoy();
+            IList<string> b = mex.ObtenerFecha("09/10/2018");
 
-            // Prueba con un dia cualquiera.
-            IList<string> c = mex.ObtenerFecha("09/10/2018");
+            // 2 Canada
+
+            IList<string> c = can.ObtenerHoy();
             IList<string> d = can.ObtenerFecha("09/10/2018");
 
-            // Prueba con un sabado.
-            IList<string> e = mex.ObtenerFecha("13/10/2018");
-            IList<string> f = can.ObtenerFecha("13/10/2018");
+            // 3 Bolvia
 
-            // Prueba con una fecha futura.
-            IList<string> g = mex.ObtenerFecha("08/10/2019");
-            IList<string> h = can.ObtenerFecha("08/10/2019");
+            IList<string> e = bv.ObtenerHoy();
+            IList<string> f = bv.ObtenerFecha("09/10/2018");
 
-            // Prueba con un string invalido.
-            IList<string> i = mex.ObtenerFecha("08/102019");
-            IList<string> j = can.ObtenerFecha("08/102019");
+            // 4 Argentina
 
-            // Prueba Bolvia
-            IList<string> m = bv.ObtenerHoy();
-            IList<string> n = bv.ObtenerFecha("09/10/2018");
+            IList<string> g = arg.ObtenerHoy();
+            IList<string> h = arg.ObtenerFecha("09/10/2018");
 
-            // Prueba Argentina
-            IList<string> k = arg.ObtenerHoy();
-            IList<string> l = arg.ObtenerFecha("09/10/2018");
+            // 5 Republica Dominicana 
 
-            //Prueba Republica Dominicana 
-            IList<string> o = dom.ObtenerHoy();
+            IList<string> i = dom.ObtenerHoy();
             IList<string> p = dom.ObtenerFecha("09/10/2018");
 
-            //Prueba xml Euro
-            IList<string> q = eur.ObtenerHoy();
-            IList<string> r = eur.ObtenerFecha("19/10/2018");
+            // 6 Union Europea
+
+            IList<string> j = eur.ObtenerHoy();
+            IList<string> k = eur.ObtenerFecha("19/10/2018");
+
+            // 7 Colombia
+
+            IList<string> l = col.ObtenerHoy();
+            IList<string> m = col.ObtenerFecha("17/08/2018");
+
+            // 8 Brasil
+
+            IList<string> n = bra.ObtenerHoy();
+            IList<string> o = bra.ObtenerFecha("12/09/2018");
+
 
 
             // Declaracion e inicializacion de variables.
