@@ -61,8 +61,7 @@ namespace TipoCambio.BusinessRules
             }
 
             // Se crea y regresa la lista de valores que se subiran a la BD. 
-            salida = CrearListaIndividual(tipoCambioCompra, tipoCambioVenta, "‎RD");
-
+            salida = CrearListaIndividual(tipoCambioCompra, tipoCambioVenta, "RD"); 
             return salida;
         }
         //Le damos formato para poder obtener nuestros valores de excel
@@ -151,7 +150,7 @@ namespace TipoCambio.BusinessRules
             // Se valida si la fecha es fin de semana
             if (ValidarFechaFinSemana(objetoFecha.ToString("dd/MM/yyyy")) != 0)
             {
-                salida = CrearListaIndividual("0", "0", "‎RD");
+                salida = CrearListaIndividual("0", "0", "RD");
                 return salida;
             }
 
@@ -198,7 +197,7 @@ namespace TipoCambio.BusinessRules
             // Se valida si la fecha es fin de semana
             if (ValidarFechaFinSemana(fecha) != 0)
             {
-                salida = CrearListaIndividual("0", "0", "‎RD");
+                salida = CrearListaIndividual("0", "0", "RD");
                 return salida;
             }
 
