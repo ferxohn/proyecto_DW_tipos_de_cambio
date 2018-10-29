@@ -93,15 +93,17 @@ namespace TipoCambio.BusinessRules
                 return null;
             }
 
+            else
+            {
+                Console.WriteLine("La primera comprobación de la existencia del archivo fue exitosa. La función continua su ejecucion.");
+            }
+
             // Se ejecuta el metodo WebRequestXLS que hace todo el trabajo, verificando su resultado.
             if (WebRequestXLS(url_excel, "datos_republica_dominicana", "Tasa Sondeo, Ventanilla, Dólar") != 0)
             {
                 Console.WriteLine("Error al obtener el tipo de cambio de República Dominicana.");
                 return null;
             }
-
-            // Se elimina el archivo obtenido. No es necesario comprobarlo.
-            EliminarArchivo();
 
             // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
             return CrearLista();
@@ -133,6 +135,9 @@ namespace TipoCambio.BusinessRules
                     }
                 }
             }
+
+            // Se elimina el archivo obtenido. No es necesario comprobarlo.
+            EliminarArchivo();
 
             // Si los tipos de cambio se mantienen en 0, se regresa una lista con tipo de cambio 0.
             if (tipoCambioCompra == "0" && tipoCambioVenta == "0")

@@ -22,6 +22,8 @@ namespace TipoCambio.Classes
         // Atributos de la clase.
         protected dynamic respuestaRequest = null;
         protected dynamic objetoRequest = null;
+        // Atributos especiales de la clase (Para el formato HTML).
+        HtmlDocument requestHTML = null;
 
         /* Metodos que sirven de interfaz estandar para distintas peticiones */
 
@@ -59,12 +61,7 @@ namespace TipoCambio.Classes
             if (RequestWeb(datos_url, parameters, values) == 0)
             {
                 // Se deserializa el HTML, verificando el resultado de la funcion.
-                if (DeserializarHTML() != 0)
-                {
-                    return 1;
-                }
-
-                return 0;
+                return DeserializarHTML();
             }
 
             else
@@ -144,7 +141,6 @@ namespace TipoCambio.Classes
             string destino = null;
             // Distintas variables para recibir la respuesta de un request antes de tratarla para almacenarla en respuestaRequest.
             dynamic requestGeneral = null;
-            HtmlDocument requestHTML = null;
 
             try
             {
@@ -161,6 +157,8 @@ namespace TipoCambio.Classes
                         {
                             // Formato HTML.
                             case "HTML":
+                                // objetoRequest se inicializa como lista.
+                                objetoRequest = new List<string>();
                                 // Se hace la peticion a partir de la URL recibida.
                                 requestHTML = new HtmlWeb().Load(url);
 
@@ -356,13 +354,23 @@ namespace TipoCambio.Classes
             // Se realiza la deserializacion del HTML.
             try
             {
-                foreach (var cambio in respuestaRequest)
+                // Se comprueba que existan nodos que deserializar.
+                if (requestHTML.DocumentNode.SelectSingleNode("//table").SelectNodes("tr") != null)
                 {
-                    objetoRequest.Add(cambio.CambioText);
+                    foreach (var cambio in respuestaRequest)
+                    {
+                        objetoRequest.Add(cambio.CambioText);
+                    }
+
+                    Console.WriteLine("Se deserializó el HTML correctamente.");
+                    return 0;
                 }
 
-                Console.WriteLine("Se deserializó el HTML correctamente.");
-                return 0;
+                else
+                {
+                    Console.WriteLine("No se encontraron nodos que deserializar");
+                    return -1;
+                }
             }
             catch (Exception ex)
             {

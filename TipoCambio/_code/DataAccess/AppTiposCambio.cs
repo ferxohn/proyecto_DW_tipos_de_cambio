@@ -92,12 +92,12 @@ namespace TipoCambio.DataAccess
             };
 
             // Finalmente se suben los valores a la BD.
-            /*foreach (IList<string> tipoCambio in tiposCambio)
+            foreach (IList<string> tipoCambio in tiposCambio)
             {
                 dataBase.EjecutarSP(storedProcedure, parametrosSP, tipoCambio);
             }
 
-            return;*/
+            return;
         }
     }
 }

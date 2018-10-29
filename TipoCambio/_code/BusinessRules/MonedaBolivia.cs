@@ -94,6 +94,8 @@ namespace TipoCambio.BusinessRules
          */
         private IList<string> EstandarWebRequest()
         {
+            // Declaracion e incializacion de variables.
+            int ejecucionWebRequest = 0;
             // Se genera la lista de valores.
             IList<string> values = new List<String>
             {
@@ -101,16 +103,31 @@ namespace TipoCambio.BusinessRules
                 Convert.ToString(objetoFecha.Month),
                 Convert.ToString(objetoFecha.Year)
             };
-
             // Se ejecuta el metodo WebRequestHTML que hace todo el trabajo, verificando su resultado.
-            if (WebRequestHTML(datos_url, parameters, values) != 0)
+            ejecucionWebRequest = WebRequestHTML(datos_url, parameters, values);
+
+            // Error en el Web Request.
+            if (ejecucionWebRequest > 0)
             {
                 Console.WriteLine("Error al obtener el tipo de cambio de Bolivia.");
                 return null;
             }
 
-            // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
-            return CrearLista();
+            // Ejecucion correcta del Web Request
+            else
+            {
+                /* Se comprueba el caso de nodos vacios, donde la fecha no tiene tipo de cambio y se
+                 * regresa una lista con tipo de cambio 0.
+                 */
+                if (ejecucionWebRequest == -1)
+                {
+                    Console.WriteLine("Se obtuvo el tipo de cambio de Bolivia correctamente.");
+                    return CrearListaBD("0", "0", "BOB");
+                }
+
+                // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
+                return CrearLista();
+            }
         }
 
         /* Metodo que permite crear la lista de valores que se subiran a la BD. (Para los metodos HTML_Hoy y HTML_Fecha).
