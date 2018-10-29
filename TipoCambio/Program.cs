@@ -24,6 +24,8 @@ namespace TipoCambio
             subirTiposCambio.SubirFecha("01/05/2018");
             // ETL del sabado 20/10/2018 (fin de semana).
             subirTiposCambio.SubirFecha("20/10/2018");
+            // ETL invalido.
+            subirTiposCambio.SubirFecha("dsfsdfdsf");
 
             return;
         }

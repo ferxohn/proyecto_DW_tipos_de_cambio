@@ -92,9 +92,17 @@ namespace TipoCambio.DataAccess
             };
 
             // Finalmente se suben los valores a la BD.
-            foreach (IList<string> tipoCambio in tiposCambio)
+            if (tiposCambio.Count > 0)
             {
-                dataBase.EjecutarSP(storedProcedure, parametrosSP, tipoCambio);
+                foreach (IList<string> tipoCambio in tiposCambio)
+                {
+                    dataBase.EjecutarSP(storedProcedure, parametrosSP, tipoCambio);
+                }
+            }
+            
+            else
+            {
+                Console.WriteLine("No se subieron registros a la Base de Datos.");
             }
 
             return;
