@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using HtmlAgilityPack;
 using CsvHelper;
 using LinqToExcel;
+using System.Xml.Linq;
 
 namespace TipoCambio.Classes
 {
@@ -54,7 +55,7 @@ namespace TipoCambio.Classes
          */
         protected int WebRequestHTML(IList<string> datos_url, IList<string> parameters = null, IList<string> values = null)
         {
-            // Se ejecuta y verifica el Web Request HTML.
+            // Se ejecuta y verifica el Web Request.
             if (RequestWeb(datos_url, parameters, values) == 0)
             {
                 // Se deserializa el HTML, verificando el resultado de la funcion.
@@ -79,7 +80,7 @@ namespace TipoCambio.Classes
          */
         protected int WebRequestXLS(IList<string> datos_url, string nombrearchivo, string nombretabla, IList<string> parameters = null, IList<string> values = null)
         {
-            // Se ejecuta y verifica el Web Request HTML.
+            // Se ejecuta y verifica el Web Request.
             if (RequestWeb(datos_url, parameters, values, nombrearchivo) == 0)
             {
                 if (DeserializarXLS(nombretabla) != 0)
@@ -116,7 +117,11 @@ namespace TipoCambio.Classes
          *           - HTML
          *           - CSV
          *           - FINANCE (Google Finance en JSON)
-         *           - SOAP (Aplicacion SOAP en XML)
+         *       
+         *       NOTA PARA APLICACION SOAP: No es necesario agregarla en esta lista. Se puede agregar el enlace a su WSDL
+         *       desde Explorador de soluciones -> Referencias (Boton derecho sobre la opcion) -> Agregar referencia de servicio...
+         *       y anadiendo el enlace mencionado junto con un nombre personalizado para su Espacio de nombres.
+         *       Tambien comprobar que la direccion que se agrega en la etiqueta "endpoint address" de App.config sea la correcta.
          *   
          *   Los siguientes parametros NO aplican para GET:
          *   datos_url[4] = Content Type de la peticion (application/xml, por ejemplo).
@@ -182,6 +187,13 @@ namespace TipoCambio.Classes
                                 requestGeneral = new WebClient();
                                 requestGeneral.DownloadFile(url, destino);
 
+                                break;
+
+                            // Formatp XML.
+                            case "XML":
+                                // Se hace la peticion del XML.
+                                objetoRequest = XElement.Load(url);
+                                
                                 break;
 
                             // Opcion default para el resto de los formatos que no requieren tratamiento especial.

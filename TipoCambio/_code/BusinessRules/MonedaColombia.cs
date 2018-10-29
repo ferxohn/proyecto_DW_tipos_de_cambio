@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TipoCambio.Classes;
+// Espacio de nombres de la aplicacion SOAP de Colombia, previamente referenciada como sevicio en el proyecto.
+using TipoCambio.ColombiaSOAP;
 
 namespace TipoCambio.BusinessRules
 {
@@ -13,14 +15,11 @@ namespace TipoCambio.BusinessRules
         /* Atributos de la clase. */
         // Para obtener el JSON de Google Finance.
         private readonly IList<string> url_google = null;
-        // Para obtener el valor de la app SOAP.
-        private readonly IList<string> url_soap = null;
-        private readonly IList<string> parameters_soap = null;
 
         // Constructor de la clase.
         public MonedaColombia()
         {
-            // Se inicializa cada una de las listas de URL y parametros a usar.
+            // Se inicializa la lista para usar Google Finance y obtener el tipo de cambio de hoy.
             url_google = new List<string>
             {
                 "https",
@@ -28,24 +27,10 @@ namespace TipoCambio.BusinessRules
                 "GET",
                 "FINANCE"
             };
-
-            url_soap = new List<string>
-            {
-                "https",
-                "www.superfinanciera.gov.co/SuperfinancieraWebServiceTRM/TCRMServicesWebService/TCRMServicesWebService?WSDL",
-                "POST",
-                "SOAP",
-                "text/xml"
-            };
-
-            parameters_soap = new List<string> 
-            {
-                "queryTCRM"
-            };
         }
 
-        // Metodo ObtenerHoy se sobreescribe con JSON_Hoy.
-        public override IList<string> ObtenerHoy() => JSON_Hoy();
+        // Metodo ObtenerFecha (Default) se sobreescribe con JSON_Hoy.
+        public override IList<string> ObtenerFecha() => JSON_Hoy();
 
         /* Metodo que permite obtener el tipo de cambio de hoy.
         * Regresa la lista de valores que se subiran a la BD.
@@ -84,6 +69,8 @@ namespace TipoCambio.BusinessRules
         {
             // Declaracion e inicializacion de variables.
             int resultadoFecha = VerificarFecha(fecha);
+            string tipoCambio = null;
+            TCRMServicesInterfaceClient clientTCRM = null;
 
             // Se verifica la fecha ingresada.
             if (resultadoFecha <= 0)
@@ -102,13 +89,26 @@ namespace TipoCambio.BusinessRules
                 return null;
             }
 
-            // Se genera la lista de valores.
-            IList<string> values = new List<String>
-            {
-                objetoFecha.ToString("yyyy-MM-dd")
-            };
+            /* Se crea una instancia de la aplicacion SOAP obtenida.
+             * En Servicios Conectados, la URL ingresada es: https://www.superfinanciera.gov.co/SuperfinancieraWebServiceTRM/TCRMServicesWebService/TCRMServicesWebService?WSDL
+             * En App.config, la URL ingresada como endpoint address es: http://www.superfinanciera.gov.co/SuperfinancieraWebServiceTRM/TCRMServicesWebService/TCRMServicesWebService
+             */
+            clientTCRM = new TCRMServicesInterfaceClient();
 
-            return null;
+            // Se obtiene el tipo de cambio llamando a la aplicacion SOAP.
+            try
+            {
+                tipoCambio = clientTCRM.queryTCRM(objetoFecha).value.ToString();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al obtener el tipo de cambio de Colombia: " + ex);
+                return null;
+            }
+
+            // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
+            Console.WriteLine("Se obtuvo el tipo de cambio de Colombia correctamente.");
+            return CrearListaBD("0", tipoCambio, "COP");
         }
     }
 }

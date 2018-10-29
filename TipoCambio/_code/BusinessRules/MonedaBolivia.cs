@@ -35,8 +35,8 @@ namespace TipoCambio.BusinessRules
             };
         }
 
-        // Metodo ObtenerHoy se sobreescribe con HTML_Hoy.
-        public override IList<string> ObtenerHoy() => HTML_Hoy();
+        // Metodo ObtenerFecha (Default) se sobreescribe con HTML_Hoy.
+        public override IList<string> ObtenerFecha() => HTML_Hoy();
 
         /* Metodo que permite obtener el tipo de cambio de hoy.
          * Regresa la lista de valores que se subiran a la BD.

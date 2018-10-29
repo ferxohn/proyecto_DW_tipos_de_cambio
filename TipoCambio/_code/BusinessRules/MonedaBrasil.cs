@@ -34,8 +34,8 @@ namespace TipoCambio.BusinessRules
             };
         }
 
-        // Metodo ObtenerHoy se sobreescribe con CSV_Hoy.
-        public override IList<string> ObtenerHoy() => CSV_Hoy();
+        // Metodo ObtenerFecha (Default) se sobreescribe con CSV_Hoy.
+        public override IList<string> ObtenerFecha() => CSV_Hoy();
 
         /* Metodo que permite obtener el tipo de cambio de hoy.
          * Regresa la lista de valores que se subiran a la BD.

@@ -33,8 +33,8 @@ namespace TipoCambio.BusinessRules
             };
         }
 
-        // Metodo ObtenerHoy se sobreescribe con JSON_Hoy.
-        public override IList<string> ObtenerHoy() => JSON_Hoy();
+        // Metodo ObtenerFecha (Default) se sobreescribe con JSON_Hoy.
+        public override IList<string> ObtenerFecha() => JSON_Hoy();
 
         /* Metodo que permite obtener el tipo de cambio de hoy.
          * Regresa la lista de valores que se subiran a la BD.

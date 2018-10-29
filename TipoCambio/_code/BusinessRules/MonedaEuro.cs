@@ -12,130 +12,130 @@ namespace TipoCambio.BusinessRules
     class MonedaEuro : RequestsDivisas
     {
         /* Atributos de la clase. */
-        // Para obtener el HTML tabla, los parametros tienen el siguiente formato: "yyyy-MM-dd"
-        private readonly IList<string> url_xml = null;
+        private readonly IList<string> datos_url = null;
 
         // Constructor de la clase.
         public MonedaEuro()
         {
             // Se inicializa cada una de las listas de URL y parametros a usar.
-            url_xml = new List<string>
+            datos_url = new List<string>
             {
                 "https",
                 "www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/usd.xml",
-                "GET"
+                "GET",
+                "XML"
             };
-
         }
 
-        /* Metodo que permite crear la lista de valores que se subiran a la BD. (Para los metodos XML_Hoy y HTML_Fecha).
-         * Notar el uso de la funcion CrearListaIndividual de la clase RequestsDivisas.
-         */
-        private IList<string> CrearListaXML(DateTime date)
-        {
-            // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
-            string tipoCambio = "0";
-            string fecha = date.ToString("yyyy-MM-dd");
-
-            // Se verifica el tipo de cambio obtenido. Si es valido, se almacena.
-
-            try
-            {
-                string url = "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/usd.xml";
-                XElement xml = XElement.Load(url), targetObs;
-
-                try
-                {
-                    XElement DataSet = xml.Descendants().Single((element) => element.Name.LocalName == "DataSet");
-                    XElement Series = DataSet.Descendants().Single((element) => element.Name.LocalName == "Series");
-
-                    targetObs = Series.Descendants().Single((element) => element.Attribute("TIME_PERIOD").Value == fecha);
-                    Console.WriteLine("Deserialización Estructura de XML.");
-                }
-
-                catch
-                {
-                    Console.WriteLine("Estructura inesperada de XML.");
-                    return null;
-                }
-                tipoCambio = targetObs.Attribute("OBS_VALUE").Value.ToString();
-                Console.WriteLine("Obtención Estructura XML");
-            }
-
-            catch
-            {
-                Console.WriteLine("Error");
-            }
-            // Se crea y regresa la lista de valores que se subiran a la BD. 
-            salida = CrearListaIndividual("0", tipoCambio, "EUR");
-
-            return salida;
-        }
-
-        // Metodo ObtenerHoy se sobreescribe con XML_Hoy.
-        public override IList<string> ObtenerHoy() => XML_Hoy();
+        // Metodo ObtenerFecha (Default) se sobreescribe con XML_Hoy.
+        public override IList<string> ObtenerFecha() => XML_Hoy();
 
         /* Metodo que permite obtener el tipo de cambio de hoy.
          * Regresa la lista de valores que se subiran a la BD.
          */
         public IList<string> XML_Hoy()
         {
-            // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
-
             // El atributo objetoFecha almacena la fecha de hoy.
             objetoFecha = DateTime.Today;
-            // Se valida si la fecha es fin de semana
-            if (ValidarFechaFinSemana(objetoFecha.ToString("dd/MM/yyyy")) != 0)
+
+            // Si el dia pertenece al fin de semana, se regresa una lista con tipo de cambio en 0.
+            if (VerificarFecha() != 0)
             {
-                salida = CrearListaIndividual("0", "0", "EUR");
-                return salida;
+                Console.WriteLine("Se obtuvo el tipo de cambio de la Unión Europea correctamente.");
+                return CrearListaBD("0", "0", "EUR");
             }
 
-            // Se genera la lista de valores.
-
-
-            // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
-            salida = CrearListaXML(objetoFecha);
-
-            Console.WriteLine("La ejecución de la función se completó de forma correcta.");
-            return salida;
+            // Se realiza la peticion web y se regresa la lista con el tipo de cambio.
+            return EstandarWebRequest();
         }
 
-        // Metodo ObtenerFecha se sobreescribe con HTML_Fecha.
-        public override IList<string> ObtenerFecha(string fecha) => HTML_Fecha(fecha);
+        // Metodo ObtenerFecha se sobreescribe con XML_Fecha.
+        public override IList<string> ObtenerFecha(string fecha) => XML_Fecha(fecha);
 
         /* Metodo que permite obtener el tipo de cambio de una fecha especifica.
          * Regresa la lista de valores que se subiran a la BD.
          */
-        public IList<string> HTML_Fecha(string fecha)
+        public IList<string> XML_Fecha(string fecha)
         {
             // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
+            int resultadoFecha = VerificarFecha(fecha);
 
-            // Se valida la fecha ingresada.
-            if (ValidarFecha(fecha) != 0)
+            // Se verifica la fecha ingresada.
+            if (resultadoFecha <= 0)
             {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
+                // Caso de dia en fin de semana.
+                if (resultadoFecha == -1)
+                {
+                    Console.WriteLine("Se obtuvo el tipo de cambio de la Unión Europea correctamente.");
+                    return CrearListaBD("0", "0", "EUR");
+                }
+            }
+
+            else
+            {
+                Console.WriteLine("Error al obtener el tipo de cambio de la Unión Europea.");
                 return null;
             }
 
-            // Se valida si la fecha es fin de semana
-            if (ValidarFechaFinSemana(objetoFecha.ToString("dd/MM/yyyy")) != 0)
+            // Se realiza la peticion web y se regresa la lista con el tipo de cambio.
+            return EstandarWebRequest();
+        }
+
+        /* Metodo que permite crear la lista de valores que se subiran a la BD. (Para los metodos XML_Hoy y HTML_Fecha).
+         * Notar el uso de la funcion CrearBD de la clase RequestsDivisas.
+         */
+        private IList<string> EstandarWebRequest()
+        {
+            // Declaracion e inicializacion de variables.
+            string tipoCambio = null;
+            XElement xmlObtenido = null;
+            XElement dataSet = null;
+            XElement series = null;
+
+            // Se ejecuta y verifica el Web Request.
+            if (RequestWeb(datos_url) != 0)
             {
-                salida = CrearListaIndividual("0", "0", "EUR");
-                return salida;
+                Console.WriteLine("Error al obtener el tipo de cambio de la Unión Europea.");
+                return null;
             }
 
-            // Se genera la lista de valores.
+            // Se verifica la estructura del XML obtenido.
+            try
+            {
+                // Se almacena el objetoRequest en otra variable para su tratamiento.
+                xmlObtenido = objetoRequest;
+                // Se deserializa el XML en su etiqueta DataSet.
+                dataSet = xmlObtenido.Descendants().Single((element) => element.Name.LocalName == "DataSet");
+                // Se deserializa el XML en su etiqueta Series, que ya contiene todos los tipos de cambio.
+                series = dataSet.Descendants().Single((element) => element.Name.LocalName == "Series");
+                
+                // Finalmente se deserializa el XML en su valor TIME_PERIOD.
+                try
+                {
+                    // Si se deserializa correctamente, objetoRequest almacenara un valor.
+                    objetoRequest = series.Descendants().Single((element) => element.Attribute("TIME_PERIOD").Value == objetoFecha.ToString("yyyy-MM-dd"));
+                    Console.WriteLine("Se deserializó el XML correctamente.");
 
+                    // Finalmente se obtiene el tipo de cambio.
+                    tipoCambio = objetoRequest.Attribute("OBS_VALUE").Value.ToString();
 
-            // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
-            salida = CrearListaXML(objetoFecha);
-
-            Console.WriteLine("La ejecución de la función se completó de forma correcta.");
-            return salida;
+                    // Se crea y regresa la lista de valores que se subiran a la BD.
+                    Console.WriteLine("Se obtuvo el tipo de cambio de la Unión Europea correctamente.");
+                    return CrearListaBD("0", tipoCambio, "EUR");
+                }
+                catch (Exception)
+                {
+                    // Si se genera una excepcion, entonces la fecha no tiene tipo de cambio, y se regresa una lista con tipo de cambio 0.
+                    Console.WriteLine("Se obtuvo el tipo de cambio de la Unión Europea correctamente.");
+                    return CrearListaBD("0", "0", "EUR");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al deserializar el XML: " + ex.Message);
+                Console.WriteLine("Error al obtener el tipo de cambio de la Unión Europea.");
+                return null;
+            }
         }
     }
 }

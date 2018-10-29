@@ -4,9 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TipoCambio.DataAccess;
-using TipoCambio.BusinessRules;
-using TipoCambio.Classes;
-using TipoCambio._code.Classes;
 
 namespace TipoCambio
 {
@@ -14,10 +11,15 @@ namespace TipoCambio
     {
         static void Main(string[] args)
         {
-            CorrerPrograma eje = new CorrerPrograma();
+            // Se crea una instancia de la app.
+            AppTiposCambio subirTiposCambio = new AppTiposCambio("tipo_cambio");
 
-            eje.CorrerHoy();
-            eje.CorrerFecha("09/10/2018");
+            /* Distintos ETL a ejecutar. */
+
+            // ETL del dia.
+            subirTiposCambio.SubirFecha();
+
+            return;
         }
     }
 }

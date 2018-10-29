@@ -82,21 +82,17 @@ namespace TipoCambio.Classes
             return salida;
         }
 
-        /* Metodos abstractos a implementar en cada divisa */
+        /* Metodos abstractos a implementar en cada divisa: Uso de polimorfismo */
 
         /* Metodo abstracto con el cual es posible obtener el tipo de cambio de hoy.
+         * No recibe parametros, y es comportamiento por defecto de ObtenerFecha.
          * Regresa la lista con los valores a subir a la BD
          */
-        public abstract IList<string> ObtenerHoy();
+        public abstract IList<string> ObtenerFecha();
 
         /* Metodo abstracto con el cual es posible obtener el tipo de cambio de un dia en especifico.
          * Regresa la lista con los valores a subir a la BD
          */
         public abstract IList<string> ObtenerFecha(string fecha);
-
-        /* Metodo abstracto con el cual es posible obtener los tipos de cambio de un periodo.
-         * Regresa una lista con las listas que contienen los valores a subir a la BD.
-         */
-        //public abstract IList<IList> ObtenerPeriodo(string fecha_inicio, string fecha_final);
     }
 }
