@@ -12,58 +12,26 @@ namespace TipoCambio.BusinessRules
     {
         /* Atributos de la clase. */
         // Para obtener el HTML tabla, los parametros tienen el siguiente formato: "date2=10/10/2018&pp1=2"
-        private readonly IList<string> url_html = null;
-        private readonly IList<string> parameters_html = null;
+        private readonly IList<string> datos_url = null;
+        private readonly IList<string> parameters = null;
 
         // Constructor de la clase.
         public MonedaArgentina()
         {
             // Se inicializa cada una de las listas de URL y parametros a usar.
-            url_html = new List<string>
+            datos_url = new List<string>
             {
                 "http",
                 "www.bcra.gob.ar/PublicacionesEstadisticas/Cotizaciones_por_fecha_2.asp?",
-                "GET"
+                "GET",
+                "HTML"
             };
 
-            parameters_html = new List<string>
+            parameters = new List<string>
             {
                 "date2",
                 "pp1"
             };
-        }
-
-        /* Metodo que permite crear la lista de valores que se subiran a la BD. (Para los metodos HTML_Hoy y HTML_Fecha).
-         * Notar el uso de la funcion CrearListaIndividual de la clase RequestsDivisas.
-         */
-        private IList<string> CrearListaHTML()
-        {
-            // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
-            string tipoCambio = "0";
-
-            // Se verifica el tipo de cambio obtenido. Si es valido, se almacena.
-            if (objetoRequestHTML != null)
-            {
-                // En este caso como es una lista, tenemos que recorrer y verificar hasta encontrar el valor que deseamos
-                int bandera = 0;
-                foreach (string dato in objetoRequestHTML)
-                {
-                    if (dato.Trim() == "Dolar Estadounidense")
-                    {
-                        tipoCambio = objetoRequestHTML[bandera + 2].Trim();
-
-                    }
-                    bandera = bandera + 1;
-                }
-
-            }
-
-            // Se crea y regresa la lista de valores que se subiran a la BD. 
-            // Como argentina manda su dato con "," comas, tenemos que convertir esa coma a punto
-            salida = CrearListaIndividual("0", tipoCambio.Replace(",", "."), "ARP");
-
-            return salida;
         }
 
         // Metodo ObtenerHoy se sobreescribe con HTML_Hoy.
@@ -74,38 +42,18 @@ namespace TipoCambio.BusinessRules
          */
         public IList<string> HTML_Hoy()
         {
-            // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
-
             // El atributo objetoFecha almacena la fecha de hoy.
             objetoFecha = DateTime.Today;
 
-            // Se valida si la fecha es fin de semana
-            if (ValidarFechaFinSemana(objetoFecha.ToString("dd/MM/yyyy")) != 0)
+            // Si el dia pertenece al fin de semana, se regresa una lista con tipo de cambio en 0.
+            if (VerificarFecha() != 0)
             {
-                salida = CrearListaIndividual("0", "0", "ARP");
-                return salida;
+                Console.WriteLine("Se obtuvo el tipo de cambio de Argentina correctamente.");
+                return CrearListaBD("0", "0", "ARS");
             }
 
-            // Se genera la lista de valores.
-            IList<string> values = new List<String>
-            {
-                objetoFecha.ToString("dd/MM/yyyy"),
-                "2"
-            };
-
-            // Se ejecuta el metodo WebRequestHTML que hace todo el trabajo, verificando su resultado.
-            if (WebRequestHTML(url_html, parameters_html, values) != 0)
-            {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
-                return null;
-            }
-
-            // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
-            salida = CrearListaHTML();
-
-            Console.WriteLine("La ejecución de la función se completó de forma correcta.");
-            return salida;
+            // Se realiza la peticion web y se regresa la lista con el tipo de cambio.
+            return EstandarWebRequest();
         }
 
         // Metodo ObtenerFecha se sobreescribe con HTML_Fecha.
@@ -117,21 +65,34 @@ namespace TipoCambio.BusinessRules
         public IList<string> HTML_Fecha(string fecha)
         {
             // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
+            int resultadoFecha = VerificarFecha(fecha);
 
-            // Se valida la fecha ingresada.
-            if (ValidarFecha(fecha) != 0)
+            // Se verifica la fecha ingresada.
+            if (resultadoFecha <= 0)
             {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
+                // Caso de dia en fin de semana.
+                if (resultadoFecha == -1)
+                {
+                    Console.WriteLine("Se obtuvo el tipo de cambio de Argentina correctamente.");
+                    return CrearListaBD("0", "0", "ARS");
+                }
+            }
+
+            else
+            {
+                Console.WriteLine("Error al obtener el tipo de cambio de Argentina.");
                 return null;
             }
-            // Se valida si la fecha es fin de semana
-            if (ValidarFechaFinSemana(fecha) != 0)
-            {
-                salida = CrearListaIndividual("0", "0", "ARP");
-                return salida;
-            }
 
+            // Se realiza la peticion web y se regresa la lista con el tipo de cambio.
+            return EstandarWebRequest();
+        }
+
+        /* Metodo que realizar toda la parte estandar del Web Request (Para los metodos HTML_Hoy y HTML_Fecha).
+         * Regresa la lista de valores lista para ser subida la Base de Datos.
+         */
+        private IList<string> EstandarWebRequest()
+        {
             // Se genera la lista de valores.
             IList<string> values = new List<String>
             {
@@ -139,19 +100,47 @@ namespace TipoCambio.BusinessRules
                 "2"
             };
 
-
             // Se ejecuta el metodo WebRequestHTML que hace todo el trabajo, verificando su resultado.
-            if (WebRequestHTML(url_html, parameters_html, values) != 0)
+            if (WebRequestHTML(datos_url, parameters, values) != 0)
             {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
+                Console.WriteLine("Error al obtener el tipo de cambio de Argentina.");
                 return null;
             }
 
             // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
-            salida = CrearListaHTML();
-
-            Console.WriteLine("La ejecución de la función se completó de forma correcta.");
-            return salida;
+            return CrearLista();
         }
+
+        /* Metodo que permite crear la lista de valores que se subiran a la BD. (Para los metodos HTML_Hoy y HTML_Fecha).
+         * Notar el uso de la funcion CrearListaBD de la clase RequestsDivisas.
+         */
+        private IList<string> CrearLista()
+        {
+            // Declaracion e inicializacion de variables.
+            int bandera = 0;
+            string tipoCambio = "0";
+
+            // Se verifica el tipo de cambio obtenido. Si es valido, se almacena.
+            if (objetoRequest != null)
+            {
+                // Como es una lista, se tiene que recorrer y verificar hasta encontrar el valor deseado.
+                foreach (string dato in objetoRequest)
+                {
+                    if (dato.Trim() == "Dolar Estadounidense")
+                    {
+                        tipoCambio = objetoRequest[bandera + 2].Trim();
+
+                    }
+
+                    bandera++;
+                }
+            }
+
+            /* Se crea y regresa la lista de valores que se subiran a la BD. 
+             * Argentina regresa el tipo de cambio con coma, por lo que es necesario convertirla a punto.
+             */
+            Console.WriteLine("Se obtuvo el tipo de cambio de Argentina correctamente.");
+            return CrearListaBD("0", tipoCambio.Replace(",", "."), "ARS");
+        }  
     }
 }

@@ -76,6 +76,7 @@
     <Compile Include="_code\BusinessRules\MonedaMexico.cs" />
     <Compile Include="_code\Classes\ConexionBD.cs" />
     <Compile Include="_code\Classes\CorrerPrograma.cs" />
+    <Compile Include="_code\Classes\PeticionesWeb.cs" />
     <Compile Include="_code\Classes\RequestsDivisas.cs" />
     <Compile Include="_code\Classes\StoredProcedures.cs" />
     <Compile Include="_code\DataAccess\AppTiposCambio.cs" />

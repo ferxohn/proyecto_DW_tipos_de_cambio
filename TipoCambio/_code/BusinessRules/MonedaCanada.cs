@@ -7,51 +7,31 @@ using TipoCambio.Classes;
 
 namespace TipoCambio.BusinessRules
 {
-    // La clase MonedaMexico hereda a la clase RequestsDivisas.
+    // La clase MonedaCanada hereda a la clase RequestsDivisas.
     class MonedaCanada : RequestsDivisas
     {
         /* Atributos de la clase. */
         // Para obtener el JSON, los parametros tienen el siguiente formato: "start_date=2018-10-10&end_date=2018-10-10"
-        private readonly IList<string> url_json = null;
-        private readonly IList<string> parameters_json = null;
+        private readonly IList<string> datos_url = null;
+        private readonly IList<string> parameters = null;
 
         // Constructor de la clase.
         public MonedaCanada()
         {
             // Se inicializa cada una de las listas de URL y parametros a usar.
-            url_json = new List<string>
+            datos_url = new List<string>
             {
                 "https",
                 "www.bankofcanada.ca/valet/observations/FXUSDCAD?",
-                "GET"
+                "GET",
+                "JSON"
             };
 
-            parameters_json = new List<string>
+            parameters = new List<string>
             {
                 "start_date",
                 "end_date"
             };
-        }
-
-        /* Metodo que permite crear la lista de valores que se subiran a la BD. (Para los metodos JSON_Hoy y JSON_Fecha).
-         * Notar el uso de la funcion CrearListaIndividual de la clase RequestsDivisas.
-         */
-        private IList<string> CrearListaJSON()
-        {
-            // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
-            string tipoCambio = "0";
-
-            // Se verifica el tipo de cambio obtenido. Si es valido, se almacena.
-            if (objetoRequest["observations"].ToString() != "[]")
-            {
-                tipoCambio = objetoRequest["observations"][0]["FXUSDCAD"]["v"].ToString();
-            }
-
-            // Se crea y regresa la lista de valores que se subiran a la BD.
-            salida = CrearListaIndividual("0", tipoCambio, "CAN");
-
-            return salida;
         }
 
         // Metodo ObtenerHoy se sobreescribe con JSON_Hoy.
@@ -62,34 +42,21 @@ namespace TipoCambio.BusinessRules
          */
         private IList<string> JSON_Hoy()
         {
-            // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
-
             // El atributo objetoFecha almacena la fecha de hoy.
             objetoFecha = DateTime.Today;
 
-            // Se genera la lista de valores.
-            IList<string> values = new List<String>
+            // Si el dia pertenece al fin de semana, se regresa una lista con tipo de cambio en 0.
+            if (VerificarFecha() != 0)
             {
-                objetoFecha.ToString("yyyy-MM-dd"),
-                objetoFecha.ToString("yyyy-MM-dd")
-            };
-
-            // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo, verificando su resultado.
-            if (WebRequestJSON(url_json, parameters_json, values) != 0)
-            {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
-                return null;
+                Console.WriteLine("Se obtuvo el tipo de cambio de Canadá correctamente.");
+                return CrearListaBD("0", "0", "CAN");
             }
 
-            // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
-            salida = CrearListaJSON();
-
-            Console.WriteLine("La ejecución de la función se completó de forma correcta.");
-            return salida;
+            // Se realiza la peticion web y se regresa la lista con el tipo de cambio.
+            return EstandarWebRequest();
         }
 
-        // Metodo ObtenerHoy se sobreescribe con JSON_Hoy.
+        // Metodo ObtenerFecha se sobreescribe con JSON_Fecha.
         public override IList<string> ObtenerFecha(string fecha) => JSON_Fecha(fecha);
 
         /* Metodo que permite obtener el tipo de cambio de una fecha especifica.
@@ -98,15 +65,34 @@ namespace TipoCambio.BusinessRules
         private IList<string> JSON_Fecha(string fecha)
         {
             // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
+            int resultadoFecha = VerificarFecha(fecha);
 
-            // Se valida la fecha ingresada.
-            if (ValidarFecha(fecha) != 0)
+            // Se verifica la fecha ingresada.
+            if (resultadoFecha <= 0)
             {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
+                // Caso de dia en fin de semana.
+                if (resultadoFecha == -1)
+                {
+                    Console.WriteLine("Se obtuvo el tipo de cambio de Canadá correctamente.");
+                    return CrearListaBD("0", "0", "CAN");
+                }
+            }
+
+            else
+            {
+                Console.WriteLine("Error al obtener el tipo de cambio de Canadá.");
                 return null;
             }
 
+            // Se realiza la peticion web y se regresa la lista con el tipo de cambio.
+            return EstandarWebRequest();
+        }
+
+        /* Metodo que realizar toda la parte estandar del Web Request (Para los metodos JSON_Hoy y JSON_Fecha).
+         * Regresa la lista de valores lista para ser subida la Base de Datos.
+         */
+        private IList<string> EstandarWebRequest()
+        {
             // Se genera la lista de valores.
             IList<string> values = new List<String>
             {
@@ -114,19 +100,35 @@ namespace TipoCambio.BusinessRules
                 objetoFecha.ToString("yyyy-MM-dd")
             };
 
-
-            // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo, verificando su resultado.
-            if (WebRequestJSON(url_json, parameters_json, values) != 0)
+            // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo de peticion web, verificando su resultado.
+            if (WebRequestJSON(datos_url, parameters, values) != 0)
             {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
+                Console.WriteLine("Error al obtener el tipo de cambio de Canadá.");
                 return null;
             }
 
             // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
-            salida = CrearListaJSON();
+            return CrearLista();
+        }
 
-            Console.WriteLine("La ejecución de la función se completó de forma correcta.");
-            return salida;
+        /* Metodo que permite crear la lista de valores que se subiran a la BD. (Para los metodos JSON_Hoy y JSON_Fecha).
+         * Notar el uso de la funcion CrearListaBD de la clase RequestsDivisas.
+         * Regresa la lista de valores lista para ser subida la Base de Datos.
+         */
+        private IList<string> CrearLista()
+        {
+            // Declaracion e inicializacion de variables.
+            string tipoCambio = "0";
+
+            // Se verifica el tipo de cambio obtenido. Si es valido, se almacena.
+            if (objetoRequest["observations"].ToString() != "[]")
+            {
+                tipoCambio = objetoRequest["observations"][0]["FXUSDCAD"]["v"].ToString();
+            }
+
+            // Se crea y regresa la lista de valores que se subiran a la BD.
+            Console.WriteLine("Se obtuvo el tipo de cambio de Canadá correctamente.");
+            return CrearListaBD("0", tipoCambio, "CAN");
         }
     }
 }
