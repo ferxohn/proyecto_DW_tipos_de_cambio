@@ -53,10 +53,12 @@ namespace TipoCambio.Classes
                 // Finalmente se ejecuta el SP.
                 comando.ExecuteNonQuery();
 
+                Registros.Bitacora.AgregarRegistro(user, "El procedimiento de la BD se ejecutó correctamente.");
                 Console.WriteLine("El procedimiento de la BD se ejecutó correctamente.");
             }
             catch (Exception ex)
             {
+                Registros.Bitacora.AgregarRegistro(user, "Error al ejecutar el procedimiento de la BD: " + ex.Message);
                 Console.WriteLine("Error al ejecutar el procedimiento de la BD: " + ex.Message);
                 ejecucion = 3;
             }
@@ -71,57 +73,3 @@ namespace TipoCambio.Classes
         }
     }
 }
-
-/*conexionbd conexion = new conexionbd();
-            conexion.abrir();*/
-
-/*string nombre_procedimiento = "insert_moneda";
-try
-{
-    SqlCommand comando = new SqlCommand(nombre_procedimiento, conexion.conectarbd);
-    comando.CommandType = CommandType.StoredProcedure;
-    comando.Parameters.Add(new SqlParameter("@moneda","MXN"));
-    comando.Parameters.Add(new SqlParameter("@pais", "México"));
-    comando.ExecuteNonQuery();
-}
-catch(Exception ex)
-{
-    Console.WriteLine("Error al ejecutar el procedimiento" + ex.Message);
-}*/
-
-/*string nombre_procedimiento2 = "insert_cambio";
-try
-{
-    SqlCommand comando = new SqlCommand(nombre_procedimiento2, conexion.conectarbd);
-    comando.CommandType = CommandType.StoredProcedure;
-    comando.Parameters.Add(new SqlParameter("@fecha", "1995-01-28"));
-    comando.Parameters.Add(new SqlParameter("@compra", 9.7));
-    comando.Parameters.Add(new SqlParameter("@venta", 7.6));
-    comando.Parameters.Add(new SqlParameter("@moneda", "MXN"));
-    comando.ExecuteNonQuery();
-}
-catch (Exception ex)
-{
-    Console.WriteLine("Error al ejecutar el procedimiento" + ex.Message);
-}*/
-
-/*string nombre_procedimiento1 = "insert_cambio2";
-try
-{
-    SqlCommand comando = new SqlCommand(nombre_procedimiento1, conexion.conectarbd);
-    comando.CommandType = CommandType.StoredProcedure;
-    comando.Parameters.Add(new SqlParameter("@fecha", "1995-01-29"));
-    comando.Parameters.Add(new SqlParameter("@compra", 6.7));
-    comando.Parameters.Add(new SqlParameter("@venta", 7.6));
-    comando.Parameters.Add(new SqlParameter("@id_moneda", 1));
-    comando.ExecuteNonQuery();
-}
-catch (Exception ex)
-{
-    Console.WriteLine("Error al ejecutar el procedimiento" + ex.Message);
-}*/
-
-
-/*conexion.cerrar();*/
-
-/*Ejecutando la clase sprocedure*/

@@ -22,6 +22,7 @@ namespace TipoCambio.Classes
 
         /* Atributos de la clase. */
         protected SqlConnection dataBase = null;
+        protected readonly string user = null;
 
         /* Metodos de la clase. */
         // Constructor de la clase. Los parametros recibidos permiten generar la cadena de conexion a la BD
@@ -35,6 +36,9 @@ namespace TipoCambio.Classes
             {
                 ConnectionString = cadena
             };
+
+            // Se almacena el usuario en la clase.
+            user = id;
         }
 
         /* Metodo AbrirConexion.
@@ -48,10 +52,12 @@ namespace TipoCambio.Classes
             try
             {
                 dataBase.Open();
+                Registros.Bitacora.AgregarRegistro(user, "Conexión a la BD abierta correctamente.");
                 Console.WriteLine("Conexión a la BD abierta correctamente.");
             }
             catch (Exception ex)
             {
+                Registros.Bitacora.AgregarRegistro(user, "Error al abrir la conexión a la BD: " + ex.Message);
                 Console.WriteLine("Error al abrir la conexión a la BD: " + ex.Message);
                 ejecucion = 1;
             }
@@ -70,10 +76,12 @@ namespace TipoCambio.Classes
             try
             {
                 dataBase.Close();
+                Registros.Bitacora.AgregarRegistro(user, "Conexión a la BD cerrada correctamente.");
                 Console.WriteLine("Conexión a la BD cerrada correctamente.");
             }
             catch (Exception ex)
             {
+                Registros.Bitacora.AgregarRegistro(user, "Error al cerrar la conexión a la BD: " + ex.Message);
                 Console.WriteLine("Error al cerrar la conexión a la BD: " + ex.Message);
                 ejecucion = 2;
             }

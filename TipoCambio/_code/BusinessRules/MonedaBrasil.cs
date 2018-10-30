@@ -12,103 +12,52 @@ namespace TipoCambio.BusinessRules
     {
         /* Atributos de la clase. */
         // Para obtener el JSON, los parametros tienen el siguiente formato: "DATAINI=09/10/2018&DATAFIM=10/10/2018"
-        private readonly IList<string> url_csv = null;
-        private readonly IList<string> parameters_csv = null;
+        private readonly IList<string> datos_url = null;
+        private readonly IList<string> parameters = null;
 
         // Constructor de la clase.
-        public MonedaBrasil()
+        public MonedaBrasil(string usuario): base(usuario)
         {
             // Se inicializa cada una de las listas de URL y parametros a usar.
-            url_csv = new List<string>
+            datos_url = new List<string>
             {
                 "https",
                 "ptax.bcb.gov.br/ptax_internet/consultaBoletim.do?method=gerarCSVFechamentoMoedaNoPeriodo&ChkMoeda=61&",
-                "GET"
+                "GET",
+                "CSV"
             };
 
-            parameters_csv = new List<string>
+            parameters = new List<string>
             {
                 "DATAINI",
                 "DATAFIM",
             };
         }
 
-        private IList<string> CrearListaCSV(IList<string> url_csv, IList<string> parameters_csv, IList<string> values)
-        {
-            IList<string> salida = null;
-
-            // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo, verificando su resultado.
-            if (RequestWeb(url_csv, parameters_csv, values) != 0)
-            {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
-                return null;
-            }
-
-            if (objetoRequest.ContentType.ToString() == "text/html;charset=ISO-8859-1")
-            {
-                salida = CrearListaIndividual("0", "0", "BRL");
-                return salida;
-            }
-
-            respuestaRequest = respuestaRequest.Replace("\n", string.Empty);
-            respuestaRequest = respuestaRequest.Replace(",", ".");
-            respuestaRequest = respuestaRequest.Replace(";", ",");
-
-            if (DeserializarCSV() != 0)
-            {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
-                return null;
-            }
-
-            objetoRequest.Read();
-
-            if (objetoFecha.ToString("ddMMyyyy") != objetoRequest[0])
-            {
-                salida = CrearListaIndividual("0", "0", "BRL");
-                return salida;
-            }
-
-            else
-            {
-                salida = CrearListaIndividual(objetoRequest[4], objetoRequest[5], "BRL");
-                return salida;
-            }
-        }
-
-        // Metodo ObtenerHoy se sobreescribe con CSV_Hoy.
-        public override IList<string> ObtenerHoy() => CSV_Hoy();
+        // Metodo ObtenerFecha (Default) se sobreescribe con CSV_Hoy.
+        public override IList<string> ObtenerFecha() => CSV_Hoy();
 
         /* Metodo que permite obtener el tipo de cambio de hoy.
          * Regresa la lista de valores que se subiran a la BD.
          */
         private IList<string> CSV_Hoy()
         {
-            // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
-
             // El atributo objetoFecha almacena la fecha de hoy.
             objetoFecha = DateTime.Today;
 
-            if (FinSemana() != 0)
+            // Si el dia pertenece al fin de semana, se regresa una lista con tipo de cambio en 0.
+            if (VerificarFecha() != 0)
             {
-                salida = CrearListaIndividual("0", "0", "BRL");
-                return salida;
+                Registros.Log.AgregarRegistro(user, "BRL", "Se obtuvo el tipo de cambio de Brasil correctamente.");
+                Console.WriteLine("Se obtuvo el tipo de cambio de Brasil correctamente.");
+                return CrearListaBD("0", "0", "BRL");
             }
 
-            // Se genera la lista de valores.
-            IList<string> values = new List<String>
-            {
-                objetoFecha.ToString("dd/MM/yyyy"),
-                objetoFecha.AddDays(1).ToString("dd/MM/yyyy")
-            };
-
-            salida = CrearListaCSV(url_csv, parameters_csv, values);
-
-            Console.WriteLine("La ejecución de la función se completó de forma correcta.");
-            return salida;
+            // Se realiza la peticion web y se regresa la lista con el tipo de cambio.
+            return EstandarWebRequest();
         }
 
-        // Metodo ObtenerHoy se sobreescribe con CSV_Hoy.
+        // Metodo ObtenerFecha se sobreescribe con CSV_Fecha.
         public override IList<string> ObtenerFecha(string fecha) => CSV_Fecha(fecha);
 
         /* Metodo que permite obtener el tipo de cambio de una fecha especifica.
@@ -117,33 +66,100 @@ namespace TipoCambio.BusinessRules
         private IList<string> CSV_Fecha(string fecha)
         {
             // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
+            int resultadoFecha = VerificarFecha(fecha);
 
-            // Se valida la fecha ingresada.
-            if (ValidarFecha(fecha) != 0)
+            // Se verifica la fecha ingresada.
+            if (resultadoFecha <= 0)
             {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
+                // Caso de dia en fin de semana.
+                if (resultadoFecha == -1)
+                {
+                    Registros.Log.AgregarRegistro(user, "BRL", "Se obtuvo el tipo de cambio de Brasil correctamente.");
+                    Console.WriteLine("Se obtuvo el tipo de cambio de Brasil correctamente.");
+                    return CrearListaBD("0", "0", "BRL");
+                }
+            }
+
+            else
+            {
+                Registros.Log.AgregarRegistro(user, "BRL", "Error al obtener el tipo de cambio de Brasil.");
+                Console.WriteLine("Error al obtener el tipo de cambio de Brasil.");
                 return null;
             }
 
-            if (FinSemana() != 0)
-            {
-                salida = CrearListaIndividual("0", "0", "BRL");
-                return salida;
-            }
+            // Se realiza la peticion web y se regresa la lista con el tipo de cambio.
+            return EstandarWebRequest();
+        }
 
-            // Se genera la lista de valores.
+        /* Metodo que realizar toda la parte estandar del Web Request (Para los metodos CSV_Hoy y CSV_Fecha).
+         * Regresa la lista de valores lista para ser subida la Base de Datos.
+         */
+        private IList<string> EstandarWebRequest()
+        {
+            /* Se genera la lista de valores.
+             * Notar que la segunda fecha tiene una dia mas a la fecha consultada.
+             * Esto debido a que la pagina web de Brasil solo permite consultar un intervalo
+             * de fechas.
+             */
             IList<string> values = new List<String>
             {
                 objetoFecha.ToString("dd/MM/yyyy"),
                 objetoFecha.AddDays(1).ToString("dd/MM/yyyy")
             };
 
-            // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
-            salida = CrearListaCSV(url_csv, parameters_csv, values);
+            // Se realiza y verifica la peticion web.
+            if (RequestWeb(datos_url, parameters, values) != 0)
+            {
+                Registros.Log.AgregarRegistro(user, "BRL", "Error al obtener el tipo de cambio de Brasil.");
+                Console.WriteLine("Error al obtener el tipo de cambio de Brasil.");
+                return null;
+            }
 
-            Console.WriteLine("La ejecución de la función se completó de forma correcta.");
-            return salida;
-        }
+            /* Si la peticion regresa un HTML, entonces el dia no tiene tipo de cambio
+             * y se regresa una lista con tipo de cambio 0.
+             */
+            if (objetoRequest.ContentType.ToString() == "text/html;charset=ISO-8859-1")
+            {
+                Registros.Log.AgregarRegistro(user, "BRL", "Se obtuvo el tipo de cambio de Brasil correctamente.");
+                Console.WriteLine("Se obtuvo el tipo de cambio de Brasil correctamente.");
+                return CrearListaBD("0", "0", "BRL");
+            }
+
+            // Se corrigen algunos caracteres del string obtenido para poder deserializarlo.
+            respuestaRequest = respuestaRequest.Replace("\n", string.Empty);
+            respuestaRequest = respuestaRequest.Replace(",", ".");
+            respuestaRequest = respuestaRequest.Replace(";", ",");
+
+            // Se deserializa el CSV y se comprueba el resultado.
+            if (DeserializarCSV() != 0)
+            {
+                Registros.Log.AgregarRegistro(user, "BRL", "Error al obtener el tipo de cambio de Brasil.");
+                Console.WriteLine("Error al obtener el tipo de cambio de Brasil.");
+                return null;
+            }
+
+            // Se ejecuta Read para poder leer el CSV obtenido.
+            objetoRequest.Read();
+
+            /* Por la forma en la que funciona la pagina web de Brasil, si se obtiene
+             * la fecha del dia siguiente a la fecha consultada en el primer espacio,
+             * entonces el dia consultado no tiene tipo de cambio, y se regresa una
+             * lista con tipo de cambio 0.
+             */
+            if (objetoFecha.ToString("ddMMyyyy") != objetoRequest[0])
+            {
+                Registros.Log.AgregarRegistro(user, "BRL", "Se obtuvo el tipo de cambio de Brasil correctamente.");
+                Console.WriteLine("Se obtuvo el tipo de cambio de Brasil correctamente.");
+                return CrearListaBD("0", "0", "BRL");
+            }
+
+            // Si no es asi, entonces el dia tiene tipo de cambio, y se regresa la lista con esos valores.
+            else
+            {
+                Registros.Log.AgregarRegistro(user, "BRL", "Se obtuvo el tipo de cambio de Brasil correctamente.");
+                Console.WriteLine("Se obtuvo el tipo de cambio de Brasil correctamente.");
+                return CrearListaBD(objetoRequest[4], objetoRequest[5], "BRL");
+            }
+        } 
     }
 }

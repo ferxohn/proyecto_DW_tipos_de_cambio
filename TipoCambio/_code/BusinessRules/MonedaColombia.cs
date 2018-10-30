@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TipoCambio.Classes;
+// Espacio de nombres de la aplicacion SOAP de Colombia, previamente referenciada como sevicio en el proyecto.
+using TipoCambio.ColombiaSOAP;
 
 namespace TipoCambio.BusinessRules
 {
@@ -13,138 +15,107 @@ namespace TipoCambio.BusinessRules
         /* Atributos de la clase. */
         // Para obtener el JSON de Google Finance.
         private readonly IList<string> url_google = null;
-        private readonly IList<string> parameters_google = null;
-        // Para obtener el valor de la app SOAP.
-        private readonly IList<string> url_soap = null;
-        private readonly IList<string> parameters_soap = null;
 
         // Constructor de la clase.
-        public MonedaColombia()
+        public MonedaColombia(string usuario): base(usuario)
         {
-            // Se inicializa cada una de las listas de URL y parametros a usar.
+            // Se inicializa la lista para usar Google Finance y obtener el tipo de cambio de hoy.
             url_google = new List<string>
             {
                 "https",
-                "www.google.com/async/finance_wholepage_price_updates?async=currencies:%2Fm%2F04lt7%5F%2B%2Fm%2F09nqf,_fmt:jspb",
-                "GET"
-            };
-
-            parameters_google = new List<string> { };
-
-            url_soap = new List<string>
-            {
-                "https",
-                "www.superfinanciera.gov.co/SuperfinancieraWebServiceTRM/TCRMServicesWebService/TCRMServicesWebService?WSDL",
-                "POST",
-                "text/xml"
-            };
-
-            parameters_soap = new List<string> 
-            {
-                "queryTCRM"
+                "www.google.com/async/finance_wholepage_price_updates?async=currencies:%2Fm%2F09nqf%2B%2Fm%2F034sw6,_fmt:jspb",
+                "GET",
+                "FINANCE"
             };
         }
-        
-        /* Metodo que permite crear la lista de valores que se subiran a la BD. (Para los metodos JSON_Hoy y JSON_Fecha).
-        * Notar el uso de la funcion CrearListaIndividual de la clase RequestsDivisas.
-        */
-        private IList<string> CrearListaJSON()
-        {
-            // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
 
-            return salida;
-        }
-
-        // Metodo ObtenerHoy se sobreescribe con JSON_Hoy.
-        public override IList<string> ObtenerHoy() => JSON_Hoy();
+        // Metodo ObtenerFecha (Default) se sobreescribe con JSON_Hoy.
+        public override IList<string> ObtenerFecha() => JSON_Hoy();
 
         /* Metodo que permite obtener el tipo de cambio de hoy.
         * Regresa la lista de valores que se subiran a la BD.
         */
         private IList<string> JSON_Hoy()
         {
-            // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
-
             // El atributo objetoFecha almacena la fecha de hoy.
             objetoFecha = DateTime.Today;
 
-            // Se genera la lista de valores.
-            IList<string> values = new List<String>
+            // Si el dia pertenece al fin de semana, se regresa una lista con tipo de cambio en 0.
+            if (VerificarFecha() != 0)
             {
-                objetoFecha.ToString("dd/MM/yyyy")
-            };
-
-            // Se comprueba si la fecha actual es un fin de semana.
-            if (FinSemana() != 0)
-            {
-                salida = CrearListaIndividual("0", "0", "COP");
-                return salida;
+                Registros.Log.AgregarRegistro(user, "COP", "Se obtuvo el tipo de cambio de Colombia correctamente.");
+                Console.WriteLine("Se obtuvo el tipo de cambio de Colombia correctamente.");
+                return CrearListaBD("0", "0", "COP");
             }
 
-            // Se ejecuta y verifica el Web Request.
-            if (RequestWeb(url_google, parameters_google, values) == 0)
+            // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo de peticion web, verificando su resultado.
+            if (WebRequestJSON(url_google) != 0)
             {
-                respuestaRequest = respuestaRequest.Substring(5);
-
-                // Se deserializa el JSON, verificando el resultado de la funcion.
-                if (DeserializarJSON() != 0)
-                {
-                    return null;
-                }
+                Registros.Log.AgregarRegistro(user, "COP", "Error al obtener el tipo de cambio de Colombia.");
+                Console.WriteLine("Error al obtener el tipo de cambio de Colombia.");
+                return null;
             }
 
             // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
-            salida = CrearListaIndividual("0", (string)objetoRequest["PriceUpdate"][0][0][1][0][3], "COP");
-
-            Console.WriteLine("La ejecución de la función se completó de forma correcta.");
-            return salida;
+            Registros.Log.AgregarRegistro(user, "COP", "Se obtuvo el tipo de cambio de Colombia correctamente.");
+            Console.WriteLine("Se obtuvo el tipo de cambio de Colombia correctamente.");
+            return CrearListaBD("0", (string)objetoRequest["PriceUpdate"][0][0][1][0][3], "COP");
         }
 
-        // Metodo ObtenerHoy se sobreescribe con JSON_Hoy.
-        public override IList<string> ObtenerFecha(string fecha) => JSON_Fecha(fecha);
+        // Metodo ObtenerFecha se sobreescribe con SOAP_Fecha.
+        public override IList<string> ObtenerFecha(string fecha) => SOAP_Fecha(fecha);
 
         /* Metodo que permite obtener el tipo de cambio de una fecha especifica.
         * Regresa la lista de valores que se subiran a la BD.
         */
-        private IList<string> JSON_Fecha(string fecha)
+        private IList<string> SOAP_Fecha(string fecha)
         {
             // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
+            int resultadoFecha = VerificarFecha(fecha);
+            string tipoCambio = null;
+            TCRMServicesInterfaceClient clientTCRM = null;
 
-            // Se valida la fecha ingresada.
-            if (ValidarFecha(fecha) != 0)
+            // Se verifica la fecha ingresada.
+            if (resultadoFecha <= 0)
             {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
+                // Caso de dia en fin de semana.
+                if (resultadoFecha == -1)
+                {
+                    Registros.Log.AgregarRegistro(user, "COP", "Se obtuvo el tipo de cambio de Colombia correctamente.");
+                    Console.WriteLine("Se obtuvo el tipo de cambio de Colombia correctamente.");
+                    return CrearListaBD("0", "0", "COP");
+                }
+            }
+
+            else
+            {
+                Registros.Log.AgregarRegistro(user, "COP", "Error al obtener el tipo de cambio de Colombia.");
+                Console.WriteLine("Error al obtener el tipo de cambio de Colombia.");
                 return null;
             }
 
-            // Se comprueba si la fecha ingresada es un fin de semana.
-            if (FinSemana() != 0)
+            /* Se crea una instancia de la aplicacion SOAP obtenida.
+             * En Servicios Conectados, la URL ingresada es: https://www.superfinanciera.gov.co/SuperfinancieraWebServiceTRM/TCRMServicesWebService/TCRMServicesWebService?WSDL
+             * En App.config, la URL ingresada como endpoint address es: http://www.superfinanciera.gov.co/SuperfinancieraWebServiceTRM/TCRMServicesWebService/TCRMServicesWebService
+             */
+            clientTCRM = new TCRMServicesInterfaceClient();
+
+            // Se obtiene el tipo de cambio llamando a la aplicacion SOAP.
+            try
             {
-                salida = CrearListaIndividual("0", "0", "COP");
-                return salida;
+                tipoCambio = clientTCRM.queryTCRM(objetoFecha).value.ToString();
             }
-
-            // Se genera la lista de valores.
-            IList<string> values = new List<String>
+            catch (Exception ex)
             {
-                objetoFecha.ToString("yyyy-MM-dd")
-            };
-
-            // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo, verificando su resultado.
-            if (WebRequestJSON(url_soap, parameters_soap, values) != 0)
-            {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
+                Registros.Log.AgregarRegistro(user, "COP", "Error al obtener el tipo de cambio de Colombia: " + ex);
+                Console.WriteLine("Error al obtener el tipo de cambio de Colombia: " + ex);
                 return null;
             }
 
             // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
-            salida = CrearListaJSON();
-
-            Console.WriteLine("La ejecución de la función se completó de forma correcta.");
-            return salida;
+            Registros.Log.AgregarRegistro(user, "COP", "Se obtuvo el tipo de cambio de Colombia correctamente.");
+            Console.WriteLine("Se obtuvo el tipo de cambio de Colombia correctamente.");
+            return CrearListaBD("0", tipoCambio, "COP");
         }
     }
 }

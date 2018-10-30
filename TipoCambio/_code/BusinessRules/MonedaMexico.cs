@@ -12,52 +12,113 @@ namespace TipoCambio.BusinessRules
     {
         /* Atributos de la clase. */
         // Para obtener el JSON, los parametros tienen el siguiente formato: "fecha=02/10/2017"
-        private readonly IList<string> url_json = null;
-        private readonly IList<string> parameters_json = null;
-        // Para obtener el HTML, los parametros tienen el siguiente formato: "idioma=sp&fechaInicial=25"%"2F01"%"2F2017&fechaFinal=07"%"2F10"%"2F2018&salida=HTML"
-        private readonly IList<string> url_html = null;
-        private readonly IList<string> parameters_html = null;
+        private readonly IList<string> datos_url = null;
+        private readonly IList<string> parameters = null;
 
         // Constructor de la clase.
-        public MonedaMexico()
+        public MonedaMexico(string usuario): base(usuario)
         {
             // Se inicializa cada una de las listas de URL y parametros a usar.
-            url_json = new List<string>
+            datos_url = new List<string>
             {
                 "http",
                 "www.banxico.org.mx/tipcamb/datosieajax?accion=dato&idSeries=SF43718&decimales=4&",
-                "GET"
+                "GET",
+                "JSON"
             };
 
-            parameters_json = new List<string>
+            parameters = new List<string>
             {
                 "fecha"
             };
+        }
 
-            url_html = new List<string>
+        // Metodo ObtenerFecha (Default) se sobreescribe con JSON_Hoy.
+        public override IList<string> ObtenerFecha() => JSON_Hoy();
+
+        /* Metodo que permite obtener el tipo de cambio de hoy.
+         * Regresa la lista de valores que se subiran a la BD.
+         */
+        private IList<string> JSON_Hoy()
+        {
+            // El atributo objetoFecha almacena la fecha de hoy.
+            objetoFecha = DateTime.Today;
+
+            // Si el dia pertenece al fin de semana, se regresa una lista con tipo de cambio en 0.
+            if (VerificarFecha() != 0)
             {
-                "http",
-                "www.banxico.org.mx/tipcamb/tipCamIHAction.do",
-                "POST"
+                Registros.Log.AgregarRegistro(user, "MXN", "Se obtuvo el tipo de cambio de México correctamente.");
+                Console.WriteLine("Se obtuvo el tipo de cambio de México correctamente.");
+                return CrearListaBD("0", "0", "MXN");
+            }
+
+            // Se realiza la peticion web y se regresa la lista con el tipo de cambio.
+            return EstandarWebRequest();
+        }
+
+        // Metodo ObtenerFecha se sobreescribe con JSON_Fecha.
+        public override IList<string> ObtenerFecha(string fecha) => JSON_Fecha(fecha);
+
+        /* Metodo que permite obtener el tipo de cambio de una fecha especifica.
+         * Regresa la lista de valores que se subiran a la BD.
+         */
+        private IList<string> JSON_Fecha(string fecha)
+        {
+            // Declaracion e inicializacion de variables.
+            int resultadoFecha = VerificarFecha(fecha);
+
+            // Se verifica la fecha ingresada.
+            if (resultadoFecha <= 0)
+            {
+                // Caso de dia en fin de semana.
+                if (resultadoFecha == -1)
+                {
+                    Registros.Log.AgregarRegistro(user, "MXN", "Se obtuvo el tipo de cambio de México correctamente.");
+                    Console.WriteLine("Se obtuvo el tipo de cambio de México correctamente.");
+                    return CrearListaBD("0", "0", "MXN");
+                }
+            }
+
+            else
+            {
+                Registros.Log.AgregarRegistro(user, "MXN", "Error al obtener el tipo de cambio de México.");
+                Console.WriteLine("Error al obtener el tipo de cambio de México.");
+                return null;
+            }
+
+            // Se realiza la peticion web y se regresa la lista con el tipo de cambio.
+            return EstandarWebRequest();
+        }
+
+        /* Metodo que realizar toda la parte estandar del Web Request (Para los metodos JSON_Hoy y JSON_Fecha).
+         * Regresa la lista de valores lista para ser subida la Base de Datos.
+         */
+        private IList<string> EstandarWebRequest()
+        {
+            // Se genera la lista de valores.
+            IList<string> values = new List<String>
+            {
+                objetoFecha.ToString("dd/MM/yyyy")
             };
 
-            parameters_html = new List<string>
+            // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo de peticion web, verificando su resultado.
+            if (WebRequestJSON(datos_url, parameters, values) != 0)
             {
-                "fecha",
-                "fechaInicial",
-                "fechaFinal",
-                "salida"
-            };
+                Registros.Log.AgregarRegistro(user, "MXN", "Error al obtener el tipo de cambio de México.");
+                Console.WriteLine("Error al obtener el tipo de cambio de México.");
+                return null;
+            }
+
+            // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
+            return CrearLista();
         }
 
         /* Metodo que permite crear la lista de valores que se subiran a la BD. (Para los metodos JSON_Hoy y JSON_Fecha).
-         * Notar el uso de la funcion CrearListaIndividual de la clase RequestsDivisas.
+         * Notar el uso de la funcion CrearListaBD de la clase RequestsDivisas.
+         * Regresa la lista de valores lista para ser subida la Base de Datos.
          */
-        private IList<string> CrearListaJSON()
-       {
-            // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
-
+        private IList<string> CrearLista()
+        {
             // Se almacena el tipo de cambio obtenido, y si es un valor invalido se cambia por 0.
             string tipoCambio = objetoRequest["body"][0]["mensaje"].ToString();
 
@@ -67,81 +128,9 @@ namespace TipoCambio.BusinessRules
             }
 
             // Se crea y regresa la lista de valores que se subiran a la BD.
-            salida = CrearListaIndividual("0", tipoCambio, "MXN");
-
-            return salida;
-        }
-
-        // Metodo ObtenerHoy se sobreescribe con JSON_Hoy.
-        public override IList<string> ObtenerHoy() => JSON_Hoy();
-
-        /* Metodo que permite obtener el tipo de cambio de hoy.
-         * Regresa la lista de valores que se subiran a la BD.
-         */
-        private IList<string> JSON_Hoy()
-        {
-            // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
-
-            // El atributo objetoFecha almacena la fecha de hoy.
-            objetoFecha = DateTime.Today;
-
-            // Se genera la lista de valores.
-            IList<string> values = new List<String>
-            {
-                objetoFecha.ToString("dd/MM/yyyy")
-            };
-
-            // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo, verificando su resultado.
-            if (WebRequestJSON(url_json, parameters_json, values) != 0)
-            {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
-                return null;
-            }
-
-            // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
-            salida = CrearListaJSON();
-
-            Console.WriteLine("La ejecución de la función se completó de forma correcta.");
-            return salida;
-        }
-
-        // Metodo ObtenerHoy se sobreescribe con JSON_Hoy.
-        public override IList<string> ObtenerFecha(string fecha) => JSON_Fecha(fecha);
-
-        /* Metodo que permite obtener el tipo de cambio de una fecha especifica.
-         * Regresa la lista de valores que se subiran a la BD.
-         */
-        private IList<string> JSON_Fecha(string fecha)
-        {
-            // Declaracion e inicializacion de variables.
-            IList<string> salida = null;
-
-            // Se valida la fecha ingresada.
-            if (ValidarFecha(fecha) != 0)
-            {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
-                return null;
-            }
-
-            // Se genera la lista de valores.
-            IList<string> values = new List<String>
-            {
-                objetoFecha.ToString("dd/MM/yyyy")
-            };
-
-            // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo, verificando su resultado.
-            if (WebRequestJSON(url_json, parameters_json, values) != 0)
-            {
-                Console.WriteLine("Error al ejecutar la función. La ejecución no se completó de forma correcta.");
-                return null;
-            }
-
-            // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
-            salida = CrearListaJSON();
-
-            Console.WriteLine("La ejecución de la función se completó de forma correcta.");
-            return salida;
+            Registros.Log.AgregarRegistro(user, "MXN", "Se obtuvo el tipo de cambio de México correctamente.");
+            Console.WriteLine("Se obtuvo el tipo de cambio de México correctamente.");
+            return CrearListaBD("0", tipoCambio, "MXN");
         }
     }
 }
