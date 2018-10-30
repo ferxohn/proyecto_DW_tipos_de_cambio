@@ -16,7 +16,7 @@ namespace TipoCambio.BusinessRules
         private readonly IList<string> parameters = null;
 
         // Constructor de la clase.
-        public MonedaBolivia()
+        public MonedaBolivia(string usuario) : base(usuario)
         {
             // Se inicializa cada una de las listas de URL y parametros a usar.
             datos_url = new List<string>
@@ -49,6 +49,7 @@ namespace TipoCambio.BusinessRules
             // Si el dia pertenece al fin de semana, se regresa una lista con tipo de cambio en 0.
             if (VerificarFecha() != 0)
             {
+                Registros.Log.AgregarRegistro(user, "BOB", "Se obtuvo el tipo de cambio de Bolivia correctamente.");
                 Console.WriteLine("Se obtuvo el tipo de cambio de Bolivia correctamente.");
                 return CrearListaBD("0", "0", "BOB");
             }
@@ -74,6 +75,7 @@ namespace TipoCambio.BusinessRules
                 // Caso de dia en fin de semana.
                 if (resultadoFecha == -1)
                 {
+                    Registros.Log.AgregarRegistro(user, "BOB", "Se obtuvo el tipo de cambio de Bolivia correctamente.");
                     Console.WriteLine("Se obtuvo el tipo de cambio de Bolivia correctamente.");
                     return CrearListaBD("0", "0", "BOB");
                 }
@@ -81,6 +83,7 @@ namespace TipoCambio.BusinessRules
 
             else
             {
+                Registros.Log.AgregarRegistro(user, "BOB", "Error al obtener el tipo de cambio de Bolivia.");
                 Console.WriteLine("Error al obtener el tipo de cambio de Bolivia.");
                 return null;
             }
@@ -109,6 +112,7 @@ namespace TipoCambio.BusinessRules
             // Error en el Web Request.
             if (ejecucionWebRequest > 0)
             {
+                Registros.Log.AgregarRegistro(user, "BOB", "Error al obtener el tipo de cambio de Bolivia.");
                 Console.WriteLine("Error al obtener el tipo de cambio de Bolivia.");
                 return null;
             }
@@ -121,6 +125,7 @@ namespace TipoCambio.BusinessRules
                  */
                 if (ejecucionWebRequest == -1)
                 {
+                    Registros.Log.AgregarRegistro(user, "BOB", "Se obtuvo el tipo de cambio de Bolivia correctamente.");
                     Console.WriteLine("Se obtuvo el tipo de cambio de Bolivia correctamente.");
                     return CrearListaBD("0", "0", "BOB");
                 }
@@ -159,6 +164,7 @@ namespace TipoCambio.BusinessRules
             }
 
             // Se crea y regresa la lista de valores que se subiran a la BD.
+            Registros.Log.AgregarRegistro(user, "BOB", "Se obtuvo el tipo de cambio de Bolivia correctamente.");
             Console.WriteLine("Se obtuvo el tipo de cambio de Bolivia correctamente.");
             return CrearListaBD(tipoCambioCompra, tipoCambio, "BOB");
         }

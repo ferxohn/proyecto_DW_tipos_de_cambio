@@ -19,6 +19,8 @@ namespace TipoCambio.DataAccess
         private readonly string source = "unicaribe.cdfuelu7xyg0.us-east-1.rds.amazonaws.com";
         // SP a ejecutar.
         private readonly string storedProcedure = "insert_update_valor";
+        // Usuario con el que se conectara a la BD.
+        private readonly string user = "AppAccess";
         // Objeto para ejecutar los SP de la BD.
         private readonly StoredProcedures dataBase = null;
         // Lista de parametros del SP a ejecutar.
@@ -34,7 +36,7 @@ namespace TipoCambio.DataAccess
     public AppTiposCambio(string catalog)
         {
             // Solamente se inicializa la conexion a la BD.
-            dataBase = new StoredProcedures("AppAccess", "Data@cces18", source, catalog);
+            dataBase = new StoredProcedures(user, "Data@cces18", source, catalog);
         }
 
         /* Metodos de ETL: Uso de polimorfismo */
@@ -68,14 +70,14 @@ namespace TipoCambio.DataAccess
         private void ETL(string fecha)
         {
             // Declaracion e inicializacion de variables.
-            MonedaMexico mxn = new MonedaMexico();
-            MonedaCanada can = new MonedaCanada();
-            MonedaArgentina ars = new MonedaArgentina();
-            MonedaBolivia bob = new MonedaBolivia();
-            MonedaBrasil brl = new MonedaBrasil();
-            MonedaRepublicaDominicana dop = new MonedaRepublicaDominicana();
-            MonedaColombia cop = new MonedaColombia();
-            MonedaEuro eur = new MonedaEuro();
+            MonedaMexico mxn = new MonedaMexico(user);
+            MonedaCanada can = new MonedaCanada(user);
+            MonedaArgentina ars = new MonedaArgentina(user);
+            MonedaBolivia bob = new MonedaBolivia(user);
+            MonedaBrasil brl = new MonedaBrasil(user);
+            MonedaRepublicaDominicana dop = new MonedaRepublicaDominicana(user);
+            MonedaColombia cop = new MonedaColombia(user);
+            MonedaEuro eur = new MonedaEuro(user);
             IList<IList<string>> tiposCambio = null;
 
             // Se obtiene cada una de las listas con los tipos de cambio de cada divisa.
@@ -102,6 +104,8 @@ namespace TipoCambio.DataAccess
             
             else
             {
+                Registros.Bitacora.AgregarRegistro(user, "No se subieron registros a la Base de Datos.");
+                Registros.Log.AgregarRegistro(user, "No se subieron registros a la Base de Datos.");
                 Console.WriteLine("No se subieron registros a la Base de Datos.");
             }
 

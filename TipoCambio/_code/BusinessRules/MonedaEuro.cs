@@ -15,7 +15,7 @@ namespace TipoCambio.BusinessRules
         private readonly IList<string> datos_url = null;
 
         // Constructor de la clase.
-        public MonedaEuro()
+        public MonedaEuro(string usuario): base(usuario)
         {
             // Se inicializa cada una de las listas de URL y parametros a usar.
             datos_url = new List<string>
@@ -41,6 +41,7 @@ namespace TipoCambio.BusinessRules
             // Si el dia pertenece al fin de semana, se regresa una lista con tipo de cambio en 0.
             if (VerificarFecha() != 0)
             {
+                Registros.Log.AgregarRegistro(user, "EUR", "Se obtuvo el tipo de cambio de la Unión Europea correctamente.");
                 Console.WriteLine("Se obtuvo el tipo de cambio de la Unión Europea correctamente.");
                 return CrearListaBD("0", "0", "EUR");
             }
@@ -66,6 +67,7 @@ namespace TipoCambio.BusinessRules
                 // Caso de dia en fin de semana.
                 if (resultadoFecha == -1)
                 {
+                    Registros.Log.AgregarRegistro(user, "EUR", "Se obtuvo el tipo de cambio de la Unión Europea correctamente.");
                     Console.WriteLine("Se obtuvo el tipo de cambio de la Unión Europea correctamente.");
                     return CrearListaBD("0", "0", "EUR");
                 }
@@ -73,6 +75,7 @@ namespace TipoCambio.BusinessRules
 
             else
             {
+                Registros.Log.AgregarRegistro(user, "EUR", "Error al obtener el tipo de cambio de la Unión Europea.");
                 Console.WriteLine("Error al obtener el tipo de cambio de la Unión Europea.");
                 return null;
             }
@@ -95,6 +98,7 @@ namespace TipoCambio.BusinessRules
             // Se ejecuta y verifica el Web Request.
             if (RequestWeb(datos_url) != 0)
             {
+                Registros.Log.AgregarRegistro(user, "EUR", "Error al obtener el tipo de cambio de la Unión Europea.");
                 Console.WriteLine("Error al obtener el tipo de cambio de la Unión Europea.");
                 return null;
             }
@@ -114,25 +118,30 @@ namespace TipoCambio.BusinessRules
                 {
                     // Si se deserializa correctamente, objetoRequest almacenara un valor.
                     objetoRequest = series.Descendants().Single((element) => element.Attribute("TIME_PERIOD").Value == objetoFecha.ToString("yyyy-MM-dd"));
+                    Registros.Log.AgregarRegistro(user, "EUR", "Se deserializó el XML correctamente.");
                     Console.WriteLine("Se deserializó el XML correctamente.");
 
                     // Finalmente se obtiene el tipo de cambio.
                     tipoCambio = objetoRequest.Attribute("OBS_VALUE").Value.ToString();
 
                     // Se crea y regresa la lista de valores que se subiran a la BD.
+                    Registros.Log.AgregarRegistro(user, "EUR", "Se obtuvo el tipo de cambio de la Unión Europea correctamente.");
                     Console.WriteLine("Se obtuvo el tipo de cambio de la Unión Europea correctamente.");
                     return CrearListaBD("0", tipoCambio, "EUR");
                 }
                 catch (Exception)
                 {
                     // Si se genera una excepcion, entonces la fecha no tiene tipo de cambio, y se regresa una lista con tipo de cambio 0.
+                    Registros.Log.AgregarRegistro(user, "EUR", "Se obtuvo el tipo de cambio de la Unión Europea correctamente.");
                     Console.WriteLine("Se obtuvo el tipo de cambio de la Unión Europea correctamente.");
                     return CrearListaBD("0", "0", "EUR");
                 }
             }
             catch (Exception ex)
             {
+                Registros.Log.AgregarRegistro(user, "EUR", "Error al deserializar el XML: " + ex.Message);
                 Console.WriteLine("Error al deserializar el XML: " + ex.Message);
+                Registros.Log.AgregarRegistro(user, "EUR", "Error al obtener el tipo de cambio de la Unión Europea.");
                 Console.WriteLine("Error al obtener el tipo de cambio de la Unión Europea.");
                 return null;
             }

@@ -15,7 +15,7 @@ namespace TipoCambio.BusinessRules
         private readonly IList<string> url_excel = null;
 
         // Constructor de la clase.
-        public MonedaRepublicaDominicana()
+        public MonedaRepublicaDominicana(string usuario): base(usuario)
         {
             // Se inicializa cada una de las listas de URL y parametros a usar.
             url_excel = new List<string>
@@ -41,6 +41,7 @@ namespace TipoCambio.BusinessRules
             // Si el dia pertenece al fin de semana, se regresa una lista con tipo de cambio en 0.
             if (VerificarFecha() != 0)
             {
+                Registros.Log.AgregarRegistro(user, "DOP", "Se obtuvo el tipo de cambio de República Dominicana correctamente.");
                 Console.WriteLine("Se obtuvo el tipo de cambio de República Dominicana correctamente.");
                 return CrearListaBD("0", "0", "DOP");
             }
@@ -66,6 +67,7 @@ namespace TipoCambio.BusinessRules
                 // Caso de dia en fin de semana.
                 if (resultadoFecha == -1)
                 {
+                    Registros.Log.AgregarRegistro(user, "DOP", "Se obtuvo el tipo de cambio de República Dominicana correctamente.");
                     Console.WriteLine("Se obtuvo el tipo de cambio de República Dominicana correctamente.");
                     return CrearListaBD("0", "0", "DOP");
                 }
@@ -73,6 +75,7 @@ namespace TipoCambio.BusinessRules
 
             else
             {
+                Registros.Log.AgregarRegistro(user, "DOP", "Error al obtener el tipo de cambio de República Dominicana.");
                 Console.WriteLine("Error al obtener el tipo de cambio de República Dominicana.");
                 return null;
             }
@@ -89,18 +92,21 @@ namespace TipoCambio.BusinessRules
             // Se comprueba la existencia del archivo para evitar conflictos.
             if (EliminarArchivo() > 0)
             {
+                Registros.Log.AgregarRegistro(user, "DOP", "Error al obtener el tipo de cambio de República Dominicana.");
                 Console.WriteLine("Error al obtener el tipo de cambio de República Dominicana.");
                 return null;
             }
 
             else
             {
+                Registros.Log.AgregarRegistro(user, "DOP", "La primera comprobación de la existencia del archivo fue exitosa. La función continua su ejecucion.");
                 Console.WriteLine("La primera comprobación de la existencia del archivo fue exitosa. La función continua su ejecucion.");
             }
 
             // Se ejecuta el metodo WebRequestXLS que hace todo el trabajo, verificando su resultado.
             if (WebRequestXLS(url_excel, "datos_republica_dominicana", "Tasa Sondeo, Ventanilla, Dólar") != 0)
             {
+                Registros.Log.AgregarRegistro(user, "DOP", "Error al obtener el tipo de cambio de República Dominicana.");
                 Console.WriteLine("Error al obtener el tipo de cambio de República Dominicana.");
                 return null;
             }
@@ -142,11 +148,13 @@ namespace TipoCambio.BusinessRules
             // Si los tipos de cambio se mantienen en 0, se regresa una lista con tipo de cambio 0.
             if (tipoCambioCompra == "0" && tipoCambioVenta == "0")
             {
+                Registros.Log.AgregarRegistro(user, "DOP", "Se obtuvo el tipo de cambio de República Dominicana correctamente.");
                 Console.WriteLine("Se obtuvo el tipo de cambio de República Dominicana correctamente.");
                 return CrearListaBD("0", "0", "DOP");
             }
 
             // Se crea y regresa la lista de valores que se subiran a la BD.
+            Registros.Log.AgregarRegistro(user, "DOP", "Se obtuvo el tipo de cambio de República Dominicana correctamente.");
             Console.WriteLine("Se obtuvo el tipo de cambio de República Dominicana correctamente.");
             return CrearListaBD(tipoCambioCompra, tipoCambioVenta, "DOP");
         }

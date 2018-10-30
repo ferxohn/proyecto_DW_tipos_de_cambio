@@ -17,13 +17,13 @@ namespace TipoCambio.BusinessRules
         private readonly IList<string> url_google = null;
 
         // Constructor de la clase.
-        public MonedaColombia()
+        public MonedaColombia(string usuario): base(usuario)
         {
             // Se inicializa la lista para usar Google Finance y obtener el tipo de cambio de hoy.
             url_google = new List<string>
             {
                 "https",
-                "www.google.com/async/finance_wholepage_price_updates?async=currencies:%2Fm%2F04lt7%5F%2B%2Fm%2F09nqf,_fmt:jspb",
+                "www.google.com/async/finance_wholepage_price_updates?async=currencies:%2Fm%2F09nqf%2B%2Fm%2F034sw6,_fmt:jspb",
                 "GET",
                 "FINANCE"
             };
@@ -43,6 +43,7 @@ namespace TipoCambio.BusinessRules
             // Si el dia pertenece al fin de semana, se regresa una lista con tipo de cambio en 0.
             if (VerificarFecha() != 0)
             {
+                Registros.Log.AgregarRegistro(user, "COP", "Se obtuvo el tipo de cambio de Colombia correctamente.");
                 Console.WriteLine("Se obtuvo el tipo de cambio de Colombia correctamente.");
                 return CrearListaBD("0", "0", "COP");
             }
@@ -50,11 +51,13 @@ namespace TipoCambio.BusinessRules
             // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo de peticion web, verificando su resultado.
             if (WebRequestJSON(url_google) != 0)
             {
+                Registros.Log.AgregarRegistro(user, "COP", "Error al obtener el tipo de cambio de Colombia.");
                 Console.WriteLine("Error al obtener el tipo de cambio de Colombia.");
                 return null;
             }
 
             // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
+            Registros.Log.AgregarRegistro(user, "COP", "Se obtuvo el tipo de cambio de Colombia correctamente.");
             Console.WriteLine("Se obtuvo el tipo de cambio de Colombia correctamente.");
             return CrearListaBD("0", (string)objetoRequest["PriceUpdate"][0][0][1][0][3], "COP");
         }
@@ -78,6 +81,7 @@ namespace TipoCambio.BusinessRules
                 // Caso de dia en fin de semana.
                 if (resultadoFecha == -1)
                 {
+                    Registros.Log.AgregarRegistro(user, "COP", "Se obtuvo el tipo de cambio de Colombia correctamente.");
                     Console.WriteLine("Se obtuvo el tipo de cambio de Colombia correctamente.");
                     return CrearListaBD("0", "0", "COP");
                 }
@@ -85,6 +89,7 @@ namespace TipoCambio.BusinessRules
 
             else
             {
+                Registros.Log.AgregarRegistro(user, "COP", "Error al obtener el tipo de cambio de Colombia.");
                 Console.WriteLine("Error al obtener el tipo de cambio de Colombia.");
                 return null;
             }
@@ -102,11 +107,13 @@ namespace TipoCambio.BusinessRules
             }
             catch (Exception ex)
             {
+                Registros.Log.AgregarRegistro(user, "COP", "Error al obtener el tipo de cambio de Colombia: " + ex);
                 Console.WriteLine("Error al obtener el tipo de cambio de Colombia: " + ex);
                 return null;
             }
 
             // Finalmente se crea y regresa la lista de valores que se subiran a la BD.
+            Registros.Log.AgregarRegistro(user, "COP", "Se obtuvo el tipo de cambio de Colombia correctamente.");
             Console.WriteLine("Se obtuvo el tipo de cambio de Colombia correctamente.");
             return CrearListaBD("0", tipoCambio, "COP");
         }

@@ -250,15 +250,18 @@ namespace TipoCambio.Classes
 
                     // Si se ingresa un metodo HTTP que no esta implementado, se regresa un error.
                     default:
+                        Registros.Log.AgregarRegistro("No existe una función implementada para este método HTTP.");
                         Console.WriteLine("No existe una función implementada para este método HTTP.");
                         return 1;
                 }
 
+                Registros.Log.AgregarRegistro("Se ejecutó la petición web correctamente.");
                 Console.WriteLine("Se ejecutó la petición web correctamente.");
                 return 0;
             }
             catch (Exception ex)
             {
+                Registros.Log.AgregarRegistro("Error al ejecutar la petición web: " + ex.Message);
                 Console.WriteLine("Error al ejecutar la petición web: " + ex.Message);
                 return 1;
             }
@@ -336,11 +339,13 @@ namespace TipoCambio.Classes
             try
             {
                 objetoRequest = JsonConvert.DeserializeObject(respuestaRequest);
+                Registros.Log.AgregarRegistro("Se deserializó el JSON correctamente.");
                 Console.WriteLine("Se deserializó el JSON correctamente.");
                 return 0;
             }
             catch (Exception ex)
             {
+                Registros.Log.AgregarRegistro("Error al deserializar el JSON: " + ex.Message);
                 Console.WriteLine("Error al deserializar el JSON: " + ex.Message);
                 return 1;
             }
@@ -362,18 +367,21 @@ namespace TipoCambio.Classes
                         objetoRequest.Add(cambio.CambioText);
                     }
 
+                    Registros.Log.AgregarRegistro("Se deserializó el HTML correctamente.");
                     Console.WriteLine("Se deserializó el HTML correctamente.");
                     return 0;
                 }
 
                 else
                 {
+                    Registros.Log.AgregarRegistro("No se encontraron nodos que deserializar");
                     Console.WriteLine("No se encontraron nodos que deserializar");
                     return -1;
                 }
             }
             catch (Exception ex)
             {
+                Registros.Log.AgregarRegistro("Error al deserializar el HTML: " + ex.Message);
                 Console.WriteLine("Error al deserializar el HTML: " + ex.Message);
                 return 1;
             }
@@ -396,12 +404,14 @@ namespace TipoCambio.Classes
                 string acceso_archivo = "" + downloadsPath + "\\" + respuestaRequest;
                 archivoXLS = new ExcelQueryFactory(acceso_archivo);
                 objetoRequest = from data in archivoXLS.Worksheet(nombretabla) select data;
+                Registros.Log.AgregarRegistro("Se deserializó el Excel correctamente.");
                 Console.WriteLine("Se deserializó el Excel correctamente.");
                 return 0;
 
             }
             catch (Exception ex)
             {
+                Registros.Log.AgregarRegistro("Error al deserializar el Excel: " + ex.Message);
                 Console.WriteLine("Error al deserializar el Excel: " + ex.Message);
                 return 1;
             }
@@ -416,11 +426,13 @@ namespace TipoCambio.Classes
             try
             {
                 objetoRequest = new CsvReader(new StringReader(respuestaRequest));
+                Registros.Log.AgregarRegistro("Se deserializó el CSV correctamente.");
                 Console.WriteLine("Se deserializó el CSV correctamente.");
                 return 0;
             }
             catch (Exception ex)
             {
+                Registros.Log.AgregarRegistro("Error al deserializar el CSV: " + ex.Message);
                 Console.WriteLine("Error al deserializar el CSV: " + ex.Message);
                 return 1;
             }
@@ -443,11 +455,13 @@ namespace TipoCambio.Classes
                 try
                 {
                     File.Delete(downloadsPath + "\\" + respuestaRequest);
+                    Registros.Log.AgregarRegistro("Se eliminó el archivo correctamente.");
                     Console.WriteLine("Se eliminó el archivo correctamente.");
                     return 0;
                 }
                 catch (Exception ex)
                 {
+                    Registros.Log.AgregarRegistro("Error al ejecutar la eliminación del archivo, eliminarlo manualmente: " + ex.Message);
                     Console.WriteLine("Error al ejecutar la eliminación del archivo, eliminarlo manualmente: " + ex.Message);
                     return 1;
                 }
@@ -455,6 +469,7 @@ namespace TipoCambio.Classes
 
             else
             {
+                Registros.Log.AgregarRegistro("Error al ejecutar la eliminación de archivo: No existe el archivo.");
                 Console.WriteLine("Error al ejecutar la eliminación de archivo: No existe el archivo.");
                 return -1;
             }

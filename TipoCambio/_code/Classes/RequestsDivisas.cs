@@ -11,8 +11,16 @@ namespace TipoCambio.Classes
      */
     abstract class RequestsDivisas : PeticionesWeb
     {
-        // Atributos de la clase.
+        /* Atributos de la clase. */
         protected DateTime objetoFecha;
+        // Usuario de la BD.
+        protected readonly string user = null;
+
+        // Constructor de la clase: Solo se almacena el usuario de la BD en la clase.
+        public RequestsDivisas(string usuario)
+        {
+            user = usuario;
+        }  
 
         /* Metodos para la fecha: Uso de polimorfismo */
 
@@ -50,6 +58,7 @@ namespace TipoCambio.Classes
                 // Como verificacion extra, se comprueba que la fecha ingresada no sea futura.
                 if (objetoFecha > DateTime.Today)
                 {
+                    Registros.Log.AgregarRegistro(user, "No es posible buscar una fecha futura.");
                     Console.WriteLine("No es posible buscar una fecha futura.");
                     return 1;
                 }
@@ -59,6 +68,7 @@ namespace TipoCambio.Classes
 
             else
             {
+                Registros.Log.AgregarRegistro(user, "Se ha ingresado una fecha incorrecta.");
                 Console.WriteLine("Se ha ingresado una fecha incorrecta.");
                 return 1;
             }

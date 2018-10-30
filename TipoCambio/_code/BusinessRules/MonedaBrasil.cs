@@ -16,7 +16,7 @@ namespace TipoCambio.BusinessRules
         private readonly IList<string> parameters = null;
 
         // Constructor de la clase.
-        public MonedaBrasil()
+        public MonedaBrasil(string usuario): base(usuario)
         {
             // Se inicializa cada una de las listas de URL y parametros a usar.
             datos_url = new List<string>
@@ -48,6 +48,7 @@ namespace TipoCambio.BusinessRules
             // Si el dia pertenece al fin de semana, se regresa una lista con tipo de cambio en 0.
             if (VerificarFecha() != 0)
             {
+                Registros.Log.AgregarRegistro(user, "BRL", "Se obtuvo el tipo de cambio de Brasil correctamente.");
                 Console.WriteLine("Se obtuvo el tipo de cambio de Brasil correctamente.");
                 return CrearListaBD("0", "0", "BRL");
             }
@@ -73,6 +74,7 @@ namespace TipoCambio.BusinessRules
                 // Caso de dia en fin de semana.
                 if (resultadoFecha == -1)
                 {
+                    Registros.Log.AgregarRegistro(user, "BRL", "Se obtuvo el tipo de cambio de Brasil correctamente.");
                     Console.WriteLine("Se obtuvo el tipo de cambio de Brasil correctamente.");
                     return CrearListaBD("0", "0", "BRL");
                 }
@@ -80,6 +82,7 @@ namespace TipoCambio.BusinessRules
 
             else
             {
+                Registros.Log.AgregarRegistro(user, "BRL", "Error al obtener el tipo de cambio de Brasil.");
                 Console.WriteLine("Error al obtener el tipo de cambio de Brasil.");
                 return null;
             }
@@ -107,6 +110,7 @@ namespace TipoCambio.BusinessRules
             // Se realiza y verifica la peticion web.
             if (RequestWeb(datos_url, parameters, values) != 0)
             {
+                Registros.Log.AgregarRegistro(user, "BRL", "Error al obtener el tipo de cambio de Brasil.");
                 Console.WriteLine("Error al obtener el tipo de cambio de Brasil.");
                 return null;
             }
@@ -116,6 +120,7 @@ namespace TipoCambio.BusinessRules
              */
             if (objetoRequest.ContentType.ToString() == "text/html;charset=ISO-8859-1")
             {
+                Registros.Log.AgregarRegistro(user, "BRL", "Se obtuvo el tipo de cambio de Brasil correctamente.");
                 Console.WriteLine("Se obtuvo el tipo de cambio de Brasil correctamente.");
                 return CrearListaBD("0", "0", "BRL");
             }
@@ -128,6 +133,7 @@ namespace TipoCambio.BusinessRules
             // Se deserializa el CSV y se comprueba el resultado.
             if (DeserializarCSV() != 0)
             {
+                Registros.Log.AgregarRegistro(user, "BRL", "Error al obtener el tipo de cambio de Brasil.");
                 Console.WriteLine("Error al obtener el tipo de cambio de Brasil.");
                 return null;
             }
@@ -142,6 +148,7 @@ namespace TipoCambio.BusinessRules
              */
             if (objetoFecha.ToString("ddMMyyyy") != objetoRequest[0])
             {
+                Registros.Log.AgregarRegistro(user, "BRL", "Se obtuvo el tipo de cambio de Brasil correctamente.");
                 Console.WriteLine("Se obtuvo el tipo de cambio de Brasil correctamente.");
                 return CrearListaBD("0", "0", "BRL");
             }
@@ -149,6 +156,7 @@ namespace TipoCambio.BusinessRules
             // Si no es asi, entonces el dia tiene tipo de cambio, y se regresa la lista con esos valores.
             else
             {
+                Registros.Log.AgregarRegistro(user, "BRL", "Se obtuvo el tipo de cambio de Brasil correctamente.");
                 Console.WriteLine("Se obtuvo el tipo de cambio de Brasil correctamente.");
                 return CrearListaBD(objetoRequest[4], objetoRequest[5], "BRL");
             }

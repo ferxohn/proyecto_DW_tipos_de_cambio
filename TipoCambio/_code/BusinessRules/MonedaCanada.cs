@@ -16,7 +16,7 @@ namespace TipoCambio.BusinessRules
         private readonly IList<string> parameters = null;
 
         // Constructor de la clase.
-        public MonedaCanada()
+        public MonedaCanada(string usuario): base(usuario)
         {
             // Se inicializa cada una de las listas de URL y parametros a usar.
             datos_url = new List<string>
@@ -48,6 +48,7 @@ namespace TipoCambio.BusinessRules
             // Si el dia pertenece al fin de semana, se regresa una lista con tipo de cambio en 0.
             if (VerificarFecha() != 0)
             {
+                Registros.Log.AgregarRegistro(user, "CAN", "Se obtuvo el tipo de cambio de Canadá correctamente.");
                 Console.WriteLine("Se obtuvo el tipo de cambio de Canadá correctamente.");
                 return CrearListaBD("0", "0", "CAN");
             }
@@ -73,6 +74,7 @@ namespace TipoCambio.BusinessRules
                 // Caso de dia en fin de semana.
                 if (resultadoFecha == -1)
                 {
+                    Registros.Log.AgregarRegistro(user, "CAN", "Se obtuvo el tipo de cambio de Canadá correctamente.");
                     Console.WriteLine("Se obtuvo el tipo de cambio de Canadá correctamente.");
                     return CrearListaBD("0", "0", "CAN");
                 }
@@ -80,6 +82,7 @@ namespace TipoCambio.BusinessRules
 
             else
             {
+                Registros.Log.AgregarRegistro(user, "CAN", "Se obtuvo el tipo de cambio de Canadá correctamente.");
                 Console.WriteLine("Error al obtener el tipo de cambio de Canadá.");
                 return null;
             }
@@ -103,6 +106,7 @@ namespace TipoCambio.BusinessRules
             // Se ejecuta el metodo WebRequestJSON que hace todo el trabajo de peticion web, verificando su resultado.
             if (WebRequestJSON(datos_url, parameters, values) != 0)
             {
+                Registros.Log.AgregarRegistro(user, "CAN", "Se obtuvo el tipo de cambio de Canadá correctamente.");
                 Console.WriteLine("Error al obtener el tipo de cambio de Canadá.");
                 return null;
             }
@@ -127,6 +131,7 @@ namespace TipoCambio.BusinessRules
             }
 
             // Se crea y regresa la lista de valores que se subiran a la BD.
+            Registros.Log.AgregarRegistro(user, "CAN", "Se obtuvo el tipo de cambio de Canadá correctamente.");
             Console.WriteLine("Se obtuvo el tipo de cambio de Canadá correctamente.");
             return CrearListaBD("0", tipoCambio, "CAN");
         }
