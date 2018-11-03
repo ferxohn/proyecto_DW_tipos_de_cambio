@@ -50,6 +50,22 @@ namespace TipoCambio.Classes
             texto.WriteLine("-------------------------------");
         }
 
+        private static void EscribirArchivo(string usuario, string mensaje, string storeProcedure, IList<string> parameters, IList<string> values, TextWriter texto)
+        {
+            texto.Write("\r\nEntrada : ");
+            texto.Write("{0} {1}", DateTime.Now.ToLongTimeString(), DateTime.Now.ToLongDateString());
+            texto.WriteLine(" :");
+            texto.WriteLine("Usuario: {0}", usuario);
+            texto.WriteLine("Procedimiento:  {0}", storeProcedure);
+            for (int i = 0; i < parameters.Count; i++)
+            {
+               texto.WriteLine("Parametros:  {0}", parameters[i]);
+                texto.WriteLine("Valores:  {0}", values[i]);
+            }
+            texto.WriteLine("Mensaje: {0}", mensaje);
+            texto.WriteLine("-------------------------------");
+        }
+
         // Clase estatica para escribir en bitacora.txt
         public static class Bitacora
         {
@@ -59,6 +75,14 @@ namespace TipoCambio.Classes
                 using (StreamWriter bitacora = File.AppendText("bitacora.txt"))
                 {
                     EscribirArchivo(usuario, mensaje, bitacora);
+                }
+            }
+
+            public static void AgregarRegistro(string usuario, string mensaje, string storeProcedure, IList<string> parameters, IList<string> values)
+            {
+                using (StreamWriter bitacora = File.AppendText("bitacora.txt"))
+                {
+                    EscribirArchivo(usuario, mensaje, storeProcedure, parameters, values, bitacora);
                 }
             }
         }

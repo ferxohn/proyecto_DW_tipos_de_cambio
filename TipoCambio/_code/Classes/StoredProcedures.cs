@@ -53,7 +53,7 @@ namespace TipoCambio.Classes
                 // Finalmente se ejecuta el SP.
                 comando.ExecuteNonQuery();
 
-                Registros.Bitacora.AgregarRegistro(user, "El procedimiento de la BD se ejecutó correctamente.");
+                Registros.Bitacora.AgregarRegistro(user, "El procedimiento de la BD se ejecutó correctamente.", storeProcedure, parameters, values);
                 Console.WriteLine("El procedimiento de la BD se ejecutó correctamente.");
             }
             catch (Exception ex)
